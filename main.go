@@ -25,15 +25,7 @@ func main() {
 		fileContents = append(fileContents, scanner.Text())
 	}
 
-	/*
-		    //number of nodes
-		    n, err := strconv.Atoi(fileContents[0])
-			if err != nil {
-				panic(err)
-			}
-	*/
-
-	for _, fc := range fileContents[1:] {
+	for _, fc := range fileContents {
 		res := strings.SplitN(fc, ",", -1)
 		src, _ := strconv.Atoi(res[0])
 		dest, _ := strconv.Atoi(res[1])
