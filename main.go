@@ -75,7 +75,7 @@ func (h *priorityQueue) Pop() interface{} {
 func main() {
 	graph := newGraph()
 
-    //errStop := errors.New("STOP")
+	//errStop := errors.New("STOP")
 
 	f, err := os.Open("input")
 	if err != nil {
@@ -99,7 +99,9 @@ func main() {
 		dest, _ := strconv.Atoi(res[1])
 		wt, _ := strconv.Atoi(res[2])
 		graph.addEdge(src, dest, wt)
-		adjacencyMap[src] = make(map[int]mapItem)
+		if _, ok := adjacencyMap[src]; !ok {
+			adjacencyMap[src] = make(map[int]mapItem)
+		}
 		adjacencyMap[src][dest] = mapItem{float64(wt)}
 	}
 
@@ -107,16 +109,18 @@ func main() {
 	graph.printGraph()
 
 	//errStop := errors.New("STOP")
+	srcNodeInt := 5
 
 	pq := make(priorityQueue, 0)
 	srcNode := &queueItem{
-		uid:  5,
+		uid:  srcNodeInt,
 		cost: 0,
 		hop:  0,
 	}
 	hp.Push(&pq, srcNode)
 
-	var numHops, maxHops int
+	// var numHops, maxHops int
+	var maxHops int
 	maxHops = math.MaxInt32
 
 	if maxHops == 0 {
@@ -143,37 +147,37 @@ func main() {
 			break
 		}
 
-		if numHops < maxHops && item.hop > numHops-1 {
+		//if numHops < maxHops && item.hop > numHops-1 {
 
-			//if !stopExpansion {
-			//	next <- true
+		//	//if !stopExpansion {
+		//	//	next <- true
 
-				                /*
-					                select {
-					                case err = <-expandErr:
-										if err != nil {
-											// errStop is returned when ProcessGraph doesn't return any more results
-											// and we can't expand anymore.
-											if err == errStop {
-												stopExpansion = true
-											} else {
-												return
-											}
-										}
-									}
-				
-                            */
-				numHops++
+		//		                /*
+		//			                select {
+		//			                case err = <-expandErr:
+		//								if err != nil {
+		//									// errStop is returned when ProcessGraph doesn't return any more results
+		//									// and we can't expand anymore.
+		//									if err == errStop {
+		//										stopExpansion = true
+		//									} else {
+		//										return
+		//									}
+		//								}
+		//							}
 
-			}
-		//}
+		//*/
+		//		numHops++
+
+		//	}
+		////}
 
 		//neighbours := graph.nodes[item.uid]
-        neighbours := adjacencyMap[item.uid]
+		neighbours := adjacencyMap[item.uid]
 
 		for toUID, neighbour := range neighbours {
 			d, ok := dist[toUID]
-            nodeCost := item.cost + float64(neighbour.cost)
+			nodeCost := item.cost + float64(neighbour.cost)
 
 			if ok && d.cost <= nodeCost {
 				continue
@@ -218,7 +222,7 @@ func main() {
 
 	for i := 0; i < len(dist); i++ {
 		result = append(result, cur)
-		if cur == 5 {
+		if cur == srcNodeInt {
 			break
 		}
 		cur = dist[cur].parent
@@ -233,7 +237,7 @@ func main() {
 	fmt.Println("Path from trial code: ", result)
 
 	fmt.Println("Dijkstra's result: ")
-	res, path := (graph.getPath(5, 6))
+	res, path := (graph.getPath(srcNodeInt, 6))
 	fmt.Println(res)
 	fmt.Println("Correct path: ", path)
 }
