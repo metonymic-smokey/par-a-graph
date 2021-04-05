@@ -3,8 +3,8 @@ package main
 import hp "container/heap"
 
 type path struct {
-	value int
-	nodes []int
+	value int64
+	nodes []int64
 }
 
 type minPath []path

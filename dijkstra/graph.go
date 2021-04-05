@@ -6,19 +6,19 @@ import (
 )
 
 type edge struct {
-	node   int
-	weight int
+	node   int64
+	weight int64
 }
 
 type graph struct {
-	nodes map[int][]edge
+	nodes map[int64][]edge
 }
 
 func newGraph() *graph {
-	return &graph{nodes: make(map[int][]edge)}
+	return &graph{nodes: make(map[int64][]edge)}
 }
 
-func (g *graph) addEdge(origin int, destination int, weight int) {
+func (g *graph) addEdge(origin int64, destination int64, weight int64) {
 	g.nodes[origin] = append(g.nodes[origin], edge{node: destination, weight: weight})
 }
 
@@ -35,10 +35,10 @@ func (g *graph) printGraph() {
 
 }
 
-func (g *graph) getPath(origin int, destination int) (int, []int) {
+func (g *graph) getPath(origin int64, destination int64) (int64, []int64) {
 	h := newHeap()
-	h.push(path{value: 0, nodes: []int{origin}})
-	visited := make(map[int]bool)
+	h.push(path{value: 0, nodes: []int64{origin}})
+	visited := make(map[int64]bool)
 
 	for len(*h.values) > 0 {
 
@@ -63,7 +63,7 @@ func (g *graph) getPath(origin int, destination int) (int, []int) {
 			go func(e edge) {
 				defer wg.Done()
 				if !visited[e.node] {
-					h.push(path{value: p.value + e.weight, nodes: append([]int{}, append(p.nodes, e.node)...)})
+					h.push(path{value: p.value + e.weight, nodes: append([]int64{}, append(p.nodes, e.node)...)})
 				}
 			}(e)
 		}
