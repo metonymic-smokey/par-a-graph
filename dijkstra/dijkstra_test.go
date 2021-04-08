@@ -27,10 +27,16 @@ func testEq(a, b []int) bool {
 	return true
 }
 
-func testPathEqual(adjacencyMap map[int]map[int]mapItem, srcNode int, dstNode int, want []int, t *testing.T) {
+func testShortestTime(adjacencyMap adjMap, srcNode int, dstNode int) []int {
 	start := time.Now()
 	got := dgraphShortest(adjacencyMap, srcNode, dstNode)
   fmt.Printf("took %v\n", time.Since(start))
+
+	return got
+}
+
+func testPathEqual(adjacencyMap map[int]map[int]mapItem, srcNode int, dstNode int, want []int, t *testing.T) {
+	got := testShortestTime(adjacencyMap, srcNode, dstNode)
 
 	if !testEq(got, want) {
 		t.Errorf("Got wrong path from dgraphShortest. Got: %v, Want: %v", got, want)
@@ -49,4 +55,12 @@ func TestOurFirstGraph(t *testing.T) {
 	testPathEqual(adjacencyMap, 2, 6, []int{2, 4, 6}, t)
 	testPathEqual(adjacencyMap, 1, 2, []int{1, 2}, t)
 	testPathEqual(adjacencyMap, 3, 6, []int{3, 4, 6}, t)
+}
+
+func TestRandomGraph(t *testing.T) {
+	graph := GenRandom(1.0/6.0, 100)
+	// PrintAdjMap(graph)
+
+	testShortestTime(graph, 0, 99)
+	testShortestTime(graph, 50, 51)
 }
