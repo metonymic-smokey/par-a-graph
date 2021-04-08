@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"reflect"
 	"strconv"
 	"strings"
 )
@@ -139,7 +140,6 @@ func dgraphShortest(adjacencyMap map[int]map[int]mapItem, src int, dest int) []i
 			}
 
 		}
-
 	}
 
 	var result []int
@@ -201,10 +201,13 @@ func main() {
 
 	dgraphResult := dgraphShortest(adjacencyMap, srcNode, destNode)
 
-	fmt.Println("Path from trial code: ", dgraphResult)
-
-	fmt.Println("Dijkstra's result: ")
 	res, path := (graph.getPath(srcNode, destNode))
-	fmt.Println(res)
-	fmt.Println("Correct path: ", path)
+
+	if !reflect.DeepEqual(dgraphResult, path) {
+		fmt.Println("Incorrect path")
+		return
+	}
+
+	fmt.Println("Cost: ", res)
+	fmt.Println("Path: ", path)
 }
