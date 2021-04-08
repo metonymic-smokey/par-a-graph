@@ -2,6 +2,7 @@ package main
 
 import (
 	hp "container/heap"
+	"fmt"
 	"math"
 	"sync"
 )
@@ -32,6 +33,19 @@ type priorityQueue []*queueItem
 type mapItem struct {
 	//attr int
 	cost float64
+}
+
+type adjMap map[int]map[int]mapItem
+type adjList map[int]mapItem
+
+func PrintAdjMap(adjacencyMap adjMap) {
+	for n1, list := range adjacencyMap {
+		fmt.Printf("%v ->", n1)
+		for n2, item := range list {
+			fmt.Printf(" (%v, %v)", n2, item.cost)
+		}
+		fmt.Println()
+	}
 }
 
 type nodeInfo struct {
