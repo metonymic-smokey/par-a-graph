@@ -9,6 +9,7 @@ import (
 	"reflect"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 type route struct {
@@ -97,6 +98,8 @@ func dgraphShortest(adjacencyMap map[int]map[int]mapItem, src int, dest int) []i
 		},
 	}
 
+	var wg sync.WaitGroup
+
 	for pq.Len() > 0 {
 		item := hp.Pop(&pq).(*queueItem)
 		if item.uid == dest { //reached destination
@@ -105,41 +108,47 @@ func dgraphShortest(adjacencyMap map[int]map[int]mapItem, src int, dest int) []i
 
 		neighbours := adjacencyMap[item.uid]
 
+		wg.Add(len(neighbours))
+
 		for toUID, neighbour := range neighbours {
-			d, ok := dist[toUID]
-			nodeCost := item.cost + float64(neighbour.cost)
+			go func(toUID int, neighbour mapItem) {
+				defer wg.Done()
+				d, ok := dist[toUID]
+				nodeCost := item.cost + float64(neighbour.cost)
 
-			if ok && d.cost <= nodeCost {
-				continue
-			}
-
-			var node *queueItem
-			if !ok {
-				// This is the first time we're seeing this node. So
-				// create a new node and add it to the heap and map.
-				node = &queueItem{
-					uid:  int(toUID),
-					cost: nodeCost,
-					hop:  item.hop + 1,
+				if ok && d.cost <= nodeCost {
+					continue
 				}
-				hp.Push(&pq, node)
-			} else {
-				// We've already seen this node. So, just update the cost
-				// and fix the priority in the heap and map.
-				node = dist[toUID].node
-				node.cost = nodeCost
-				node.hop = item.hop + 1
-				hp.Fix(&pq, node.index)
-			}
-			dist[toUID] = nodeInfo{
-				parent: item.uid,
-				node:   node,
-				mapItem: mapItem{
-					cost: nodeCost,
-				},
-			}
 
+				var node *queueItem
+				if !ok {
+					// This is the first time we're seeing this node. So
+					// create a new node and add it to the heap and map.
+					node = &queueItem{
+						uid:  int(toUID),
+						cost: nodeCost,
+						hop:  item.hop + 1,
+					}
+					hp.Push(&pq, node)
+				} else {
+					// We've already seen this node. So, just update the cost
+					// and fix the priority in the heap and map.
+					node = dist[toUID].node
+					node.cost = nodeCost
+					node.hop = item.hop + 1
+					hp.Fix(&pq, node.index)
+				}
+				dist[toUID] = nodeInfo{
+					parent: item.uid,
+					node:   node,
+					mapItem: mapItem{
+						cost: nodeCost,
+					},
+				}
+
+			}(toUID, neighbour)
 		}
+		wg.Wait()
 	}
 
 	var result []int
