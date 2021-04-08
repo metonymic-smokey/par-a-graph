@@ -30,7 +30,7 @@ func testEq(a, b []int) bool {
 func testShortestTime(adjacencyMap adjMap, srcNode int, dstNode int) []int {
 	start := time.Now()
 	got := dgraphShortest(adjacencyMap, srcNode, dstNode)
-  fmt.Printf("took %v\n", time.Since(start))
+	fmt.Printf("took %v\n", time.Since(start))
 
 	return got
 }

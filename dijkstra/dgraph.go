@@ -105,6 +105,8 @@ func dgraphShortest(adjacencyMap map[int]map[int]mapItem, src int, dest int) []i
 		wg.Add(len(neighbours))
 
 		for toUID, neighbour := range neighbours {
+			done := make(chan struct{})
+
 			go func(toUID int, neighbour mapItem) {
 				defer wg.Done()
 				d, ok := dist[toUID]
@@ -139,8 +141,11 @@ func dgraphShortest(adjacencyMap map[int]map[int]mapItem, src int, dest int) []i
 						cost: nodeCost,
 					},
 				}
+				done <- struct{}{}
 
 			}(toUID, neighbour)
+			<-done
+
 		}
 		wg.Wait()
 	}

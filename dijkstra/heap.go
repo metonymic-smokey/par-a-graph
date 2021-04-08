@@ -14,6 +14,7 @@ func (h minPath) Less(i, j int) bool { return h[i].value < h[j].value }
 func (h minPath) Swap(i, j int)      { h[i], h[j] = h[j], h[i] }
 
 func (h *minPath) Push(x interface{}) {
+	//data race happens here - fix it!
 	*h = append(*h, x.(path))
 }
 
