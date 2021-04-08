@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	hp "container/heap"
-	//"errors"
 	"fmt"
 	"math"
 	"os"
@@ -72,63 +71,21 @@ func (h *priorityQueue) Pop() interface{} {
 	return val
 }
 
-func main() {
-	graph := newGraph()
-
-	//errStop := errors.New("STOP")
-
-	f, err := os.Open("input")
-	if err != nil {
-		panic(err)
-	}
-
-	defer f.Close()
-
-	var fileContents []string
-	scanner := bufio.NewScanner(f)
-
-	for scanner.Scan() {
-		fileContents = append(fileContents, scanner.Text())
-	}
-
-	adjacencyMap := make(map[int]map[int]mapItem)
-
-	for _, fc := range fileContents {
-		res := strings.SplitN(fc, ",", -1)
-		src, _ := strconv.Atoi(res[0])
-		dest, _ := strconv.Atoi(res[1])
-		wt, _ := strconv.Atoi(res[2])
-		graph.addEdge(src, dest, wt)
-		if _, ok := adjacencyMap[src]; !ok {
-			adjacencyMap[src] = make(map[int]mapItem)
-		}
-		adjacencyMap[src][dest] = mapItem{float64(wt)}
-	}
-
-	fmt.Println("Adjacency List: ")
-	graph.printGraph()
-
-	//errStop := errors.New("STOP")
-	srcNodeInt := 5
-
+func dgraphShortest(adjacencyMap map[int]map[int]mapItem, src int, dest int) []int {
 	pq := make(priorityQueue, 0)
 	srcNode := &queueItem{
-		uid:  srcNodeInt,
+		uid:  src,
 		cost: 0,
 		hop:  0,
 	}
 	hp.Push(&pq, srcNode)
 
-	// var numHops, maxHops int
 	var maxHops int
 	maxHops = math.MaxInt32
 
 	if maxHops == 0 {
-		return
+		return []int{}
 	}
-
-	//next := make(chan bool, 1)
-	//expandErr := make(chan error, 1)
 
 	dist := make(map[int]nodeInfo)
 	dist[srcNode.uid] = nodeInfo{
@@ -139,40 +96,12 @@ func main() {
 		},
 	}
 
-	//var stopExpansion bool
-
 	for pq.Len() > 0 {
 		item := hp.Pop(&pq).(*queueItem)
-		if item.uid == 6 { //reached destination '6'
+		if item.uid == dest { //reached destination
 			break
 		}
 
-		//if numHops < maxHops && item.hop > numHops-1 {
-
-		//	//if !stopExpansion {
-		//	//	next <- true
-
-		//		                /*
-		//			                select {
-		//			                case err = <-expandErr:
-		//								if err != nil {
-		//									// errStop is returned when ProcessGraph doesn't return any more results
-		//									// and we can't expand anymore.
-		//									if err == errStop {
-		//										stopExpansion = true
-		//									} else {
-		//										return
-		//									}
-		//								}
-		//							}
-
-		//*/
-		//		numHops++
-
-		//	}
-		////}
-
-		//neighbours := graph.nodes[item.uid]
 		neighbours := adjacencyMap[item.uid]
 
 		for toUID, neighbour := range neighbours {
@@ -206,7 +135,6 @@ func main() {
 				node:   node,
 				mapItem: mapItem{
 					cost: nodeCost,
-					//attr: neighbour.node,
 				},
 			}
 
@@ -214,15 +142,12 @@ func main() {
 
 	}
 
-	//next <- false
-
 	var result []int
-	cur := 6
-	//totalWeight := dist[cur].cost
+	cur := dest
 
 	for i := 0; i < len(dist); i++ {
 		result = append(result, cur)
-		if cur == srcNodeInt {
+		if cur == src {
 			break
 		}
 		cur = dist[cur].parent
@@ -234,10 +159,52 @@ func main() {
 		result[i], result[l-i-1] = result[l-i-1], result[i]
 	}
 
-	fmt.Println("Path from trial code: ", result)
+	return result
+}
+
+func main() {
+	graph := newGraph()
+
+	f, err := os.Open("input")
+	if err != nil {
+		panic(err)
+	}
+
+	defer f.Close()
+
+	var fileContents []string
+	scanner := bufio.NewScanner(f)
+
+	for scanner.Scan() {
+		fileContents = append(fileContents, scanner.Text())
+	}
+
+	adjacencyMap := make(map[int]map[int]mapItem)
+
+	for _, fc := range fileContents {
+		res := strings.SplitN(fc, ",", -1)
+		src, _ := strconv.Atoi(res[0])
+		dest, _ := strconv.Atoi(res[1])
+		wt, _ := strconv.Atoi(res[2])
+		graph.addEdge(src, dest, wt)
+		if _, ok := adjacencyMap[src]; !ok {
+			adjacencyMap[src] = make(map[int]mapItem)
+		}
+		adjacencyMap[src][dest] = mapItem{float64(wt)}
+	}
+
+	fmt.Println("Adjacency List: ")
+	graph.printGraph()
+
+	srcNode := 5
+	destNode := 6
+
+	dgraphResult := dgraphShortest(adjacencyMap, srcNode, destNode)
+
+	fmt.Println("Path from trial code: ", dgraphResult)
 
 	fmt.Println("Dijkstra's result: ")
-	res, path := (graph.getPath(srcNodeInt, 6))
+	res, path := (graph.getPath(srcNode, destNode))
 	fmt.Println(res)
 	fmt.Println("Correct path: ", path)
 }
