@@ -127,6 +127,7 @@ func dgraphShortest(adjacencyMap map[int]map[int]mapItem, src int, dest int) []i
 				nodeCost := item.cost + float64(neighbour.cost)
 
 				if ok && d.cost <= nodeCost {
+					done <- struct{}{}
 					return
 				}
 
