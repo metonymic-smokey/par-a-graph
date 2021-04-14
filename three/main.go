@@ -41,9 +41,10 @@ func main() {
 
 	graph.PrintGraph()
 
-	shortestDistances := Dijkstra(&graph, 0)
+	sourceId := uint64(4)
+	shortestDistances := Dijkstra(&graph, sourceId)
 
 	for i, v := range shortestDistances {
-		fmt.Printf("From vertex %v to %v = %v\n", 0, i, v)
+		fmt.Printf("From vertex %v to %v = %v\n", sourceId, i, v)
 	}
 }

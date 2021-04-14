@@ -9,18 +9,18 @@ func minVertex(
 	shortestDistances []uint64,
 	finalizedVertices []bool,
 	sourceId uint64) uint64 {
-		minId := sourceId
+	minId := sourceId
 
-		var min uint64 = math.MaxUint64
+	var min uint64 = math.MaxUint64
 
-		for i, v := range finalizedVertices {
-			if !v && shortestDistances[i] <= min {
-				min = shortestDistances[i]
-				minId = uint64(i)
-			}
+	for i, v := range finalizedVertices {
+		if !v && shortestDistances[i] <= min {
+			min = shortestDistances[i]
+			minId = uint64(i)
 		}
+	}
 
-		return minId
+	return minId
 }
 
 func Dijkstra(g *graph, sourceId uint64) []uint64 {
@@ -32,7 +32,7 @@ func Dijkstra(g *graph, sourceId uint64) []uint64 {
 		shortestDistances[i] = math.MaxUint64
 	}
 
-	shortestDistances[0] = 0
+	shortestDistances[sourceId] = 0
 
 	finalizedVertices := make([]bool, numVertices)
 
@@ -42,7 +42,7 @@ func Dijkstra(g *graph, sourceId uint64) []uint64 {
 		currentVertex := minVertex(shortestDistances, finalizedVertices, sourceId)
 		// fmt.Println(shortestDistances, finalizedVertices, currentVertex)
 
-		finalizedVertices[i] = true
+		finalizedVertices[currentVertex] = true
 
 		// for j := 0; j < numVertices; j++ {
 		// 	if !finalizedVertices[uint64(j)] && g.EdgeExists(uint64(currentVertex), uint64(j)) && shortestDistances[currentVertex] != math.MaxUint64 && shortestDistances[currentVertex] > 0 {
@@ -57,8 +57,8 @@ func Dijkstra(g *graph, sourceId uint64) []uint64 {
 		for j := first; j < last; j++ {
 			if v := g.dst[j]; !finalizedVertices[v] &&
 				shortestDistances[currentVertex] != math.MaxUint64 &&
-				shortestDistances[currentVertex] + g.w[j] < shortestDistances[v] {
-					shortestDistances[v] = shortestDistances[currentVertex] + g.w[j]
+				shortestDistances[currentVertex]+g.w[j] < shortestDistances[v] {
+				shortestDistances[v] = shortestDistances[currentVertex] + g.w[j]
 			}
 		}
 	}
