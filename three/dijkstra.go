@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"sync"
 )
 
 // Finds the vertex with minimum distance value, from the set of vertices not yet included in shortest path tree
@@ -61,6 +62,59 @@ func Dijkstra(g *graph, sourceId uint64) []uint64 {
 				shortestDistances[v] = shortestDistances[currentVertex] + g.w[j]
 			}
 		}
+	}
+
+	return shortestDistances
+}
+
+func dijkstraInnerLoop(
+	j uint64,
+	g *graph,
+	currentVertex uint64,
+	shortestDistances []uint64,
+	finalizedVertices []bool,
+	wg *sync.WaitGroup) {
+	defer wg.Done()
+
+	v := g.dst[j]
+
+	if !finalizedVertices[v] &&
+		shortestDistances[currentVertex] != math.MaxUint64 &&
+		shortestDistances[currentVertex]+g.w[j] < shortestDistances[v] {
+		shortestDistances[v] = shortestDistances[currentVertex] + g.w[j]
+	}
+}
+
+func DijkstraParallel(g *graph, sourceId uint64) []uint64 {
+	numVertices := len(g.ptr) - 1
+
+	shortestDistances := make([]uint64, numVertices)
+
+	for i := range shortestDistances {
+		shortestDistances[i] = math.MaxUint64
+	}
+
+	shortestDistances[sourceId] = 0
+
+	finalizedVertices := make([]bool, numVertices)
+
+	// question: why only N-1 iterations?
+	// iterations of dijkstra
+	for i := 0; i < numVertices-1; i++ {
+		currentVertex := minVertex(shortestDistances, finalizedVertices, sourceId)
+
+		finalizedVertices[currentVertex] = true
+
+		first, last := g.GetEdgeRange(uint64(currentVertex))
+
+		var wg sync.WaitGroup
+
+		for j := first; j < last; j++ {
+			wg.Add(1)
+			go dijkstraInnerLoop(j, g, currentVertex, shortestDistances, finalizedVertices, &wg)
+		}
+
+		wg.Wait()
 	}
 
 	return shortestDistances

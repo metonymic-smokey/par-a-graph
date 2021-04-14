@@ -44,6 +44,14 @@ func main() {
 	sourceId := uint64(4)
 	shortestDistances := Dijkstra(&graph, sourceId)
 
+	fmt.Println("Serial")
+	for i, v := range shortestDistances {
+		fmt.Printf("From vertex %v to %v = %v\n", sourceId, i, v)
+	}
+
+	fmt.Println("Parallel")
+	shortestDistances = DijkstraParallel(&graph, sourceId)
+
 	for i, v := range shortestDistances {
 		fmt.Printf("From vertex %v to %v = %v\n", sourceId, i, v)
 	}

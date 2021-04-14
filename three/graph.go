@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math/rand"
 	"fmt"
 	"sort"
 )
@@ -16,6 +17,30 @@ func EmptyGraph(size int) graph {
 	g.ptr = make([]uint64, size + 1)
 	g.dst = make([]uint64, 0)
 	g.w = make([]uint64, 0)
+
+	return g
+}
+
+func RandomGraph1(nodes int, p float64) graph {
+	ag := newGraph()
+
+	for i := 0; i < nodes; i++ {
+		ag.nodes[i] = make([]edge, 0)
+	}
+
+	for i := 0; i < nodes; i++ {
+		for j := 0; j < nodes; j++ {
+			rnum := rand.Float64()
+
+			if rnum < p {
+				// graph[i] = append(graph[i], {j, })
+				// graph[i][j] = mapItem{rand.Float64()}
+				ag.addEdge(i, j, rand.Int())
+			}
+		}
+	}
+
+	g := GraphFromAdjList(*ag)
 
 	return g
 }
