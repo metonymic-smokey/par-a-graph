@@ -5,6 +5,7 @@ import (
 	"bufio"
 	"strings"
 	"strconv"
+	"fmt"
 )
 
 func main() {
@@ -35,6 +36,14 @@ func main() {
 	agraph.printGraph()
 
 	graph := GraphFromAdjList(*agraph)
+	// hack for that issue in GraphFromAdjList
+	graph.ptr = append(graph.ptr, graph.ptr[len(graph.ptr) - 1])
 
 	graph.PrintGraph()
+
+	shortestDistances := Dijkstra(&graph, 0)
+
+	for i, v := range shortestDistances {
+		fmt.Printf("From vertex %v to %v = %v\n", 0, i, v)
+	}
 }

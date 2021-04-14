@@ -13,7 +13,7 @@ type graph struct {
 
 func EmptyGraph(size int) graph {
 	g := graph{}
-	g.ptr = make([]uint64, size)
+	g.ptr = make([]uint64, size + 1)
 	g.dst = make([]uint64, 0)
 	g.w = make([]uint64, 0)
 
@@ -35,6 +35,9 @@ func sortedKeys(m map[int][]edge) []int {
 	return keys
 }
 
+// TODO: there's an issue here. if a destination node
+// doesn't have any outgoing links, then it fails to show
+// up in g.ptr and everthing dies
 func GraphFromAdjList(g adjGraph) graph {
 	newG := EmptyGraph(len(g.nodes))
 
@@ -45,11 +48,14 @@ func GraphFromAdjList(g adjGraph) graph {
 
 		for _, dest := range g.nodes[src] {
 			newG.dst = append(newG.dst, uint64(dest.node))
+
 			newG.w = append(newG.w, uint64(dest.weight))
 
 			lastDegree += 1
 		}
 	}
+
+	newG.ptr[len(g.nodes)] = uint64(lastDegree)
 
 	return newG
 }
@@ -72,4 +78,21 @@ func (g *graph) PrintGraph() {
 		fmt.Printf(" %v", v)
 	}
 	fmt.Println()
+}
+
+// func (g *graph) EdgeExists(u uint64, v uint64) bool {
+// 	first := g.ptr[u]
+// 	last := g.ptr[u+1]
+
+// 	for i := first; i < last; i++ {
+// 		if (g.dst[i] == v) {
+// 			return true
+// 		}
+// 	}
+
+// 	return false
+// }
+
+func (g *graph) GetEdgeRange(node uint64) (uint64, uint64) {
+	return g.ptr[node], g.ptr[node+1]
 }
