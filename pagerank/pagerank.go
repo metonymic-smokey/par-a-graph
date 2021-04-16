@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"math"
+	"sync"
 )
 
 type mapItem struct {
@@ -38,20 +39,35 @@ func Rank(graph adjMap, alpha, epsilon float64, callback func(id int, rank float
 
 	inverse := 1 / float64(len(graph.nodes))
 
+	var wg sync.WaitGroup
+	wg.Add(len(graph.edges))
+
 	for source := range graph.edges {
 		if graph.nodes[source].outbound > 0 {
-			for target := range graph.edges[source] {
-				//fmt.Printf("%T\n",graph.edges[source][target])
-				var temp mapItem
-				temp.cost = graph.edges[source][target].cost / graph.nodes[source].outbound
-				graph.edges[source][target] = temp
-			}
+			go func(source int) {
+				defer wg.Done()
+				for target := range graph.edges[source] {
+					//fmt.Printf("%T\n",graph.edges[source][target])
+					var temp mapItem
+					temp.cost = graph.edges[source][target].cost / graph.nodes[source].outbound
+					graph.edges[source][target] = temp
+				}
+			}(source)
 		}
 	}
 
+	wg.Wait()
+
+	wg.Add(len(graph.nodes))
+
 	for key := range graph.nodes {
-		graph.nodes[key].weight = inverse
+		go func(key int) {
+			defer wg.Done()
+			graph.nodes[key].weight = inverse
+		}(key)
 	}
+
+	wg.Wait()
 
 	for delta > epsilon {
 		leak := float64(0)
@@ -65,19 +81,25 @@ func Rank(graph adjMap, alpha, epsilon float64, callback func(id int, rank float
 			}
 
 			graph.nodes[key].weight = 0
+
 		}
 
 		leak *= alpha
 
 		for source := range graph.nodes {
-			for target, _ := range graph.edges[source] {
-				var weight mapItem
-				weight = graph.edges[source][target]
-				//fmt.Printf("%T %T %T\n",nodes[source],alpha,weight)
-				graph.nodes[target].weight += alpha * nodes[source] * weight.cost
-			}
+			wg.Add(len(graph.edges[source]))
 
+			for target, _ := range graph.edges[source] {
+				go func(target int) {
+					defer wg.Done()
+					var weight mapItem
+					weight = graph.edges[source][target]
+					//fmt.Printf("%T %T %T\n",nodes[source],alpha,weight)
+					graph.nodes[target].weight += alpha * nodes[source] * weight.cost
+				}(target)
+			}
 			graph.nodes[source].weight += (1-alpha)*inverse + leak*inverse
+			wg.Wait()
 		}
 
 		delta = 0
