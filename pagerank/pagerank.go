@@ -74,8 +74,7 @@ func Rank(graph adjMap, alpha, epsilon float64, callback func(id int, rank float
 				var weight mapItem
 				weight = graph.edges[source][target]
 				//fmt.Printf("%T %T %T\n",nodes[source],alpha,weight)
-				//graph.nodes[target].weight += alpha * nodes[source] * weight.cost
-				_, _ = target, weight
+				graph.nodes[target].weight += alpha * nodes[source] * weight.cost
 			}
 
 			graph.nodes[source].weight += (1-alpha)*inverse + leak*inverse
