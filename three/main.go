@@ -6,6 +6,7 @@ import (
 	"strings"
 	"strconv"
 	"fmt"
+	"time"
 )
 
 func main() {
@@ -55,4 +56,14 @@ func main() {
 	for i, v := range shortestDistances {
 		fmt.Printf("From vertex %v to %v = %v\n", sourceId, i, v)
 	}
+
+	fmt.Println("random graph")
+	g := RandomGraph1(1000, 0.5)
+	// start := time.Now()
+	// Dijkstra(&g, sourceId)
+	// fmt.Printf("Serial took:\t %v\n", time.Since(start))
+
+	start2 := time.Now()
+	DijkstraParallel(&g, sourceId)
+	fmt.Printf("Parallel took:\t %v\n", time.Since(start2))
 }

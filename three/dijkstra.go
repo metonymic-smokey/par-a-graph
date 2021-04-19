@@ -85,6 +85,8 @@ func dijkstraInnerLoop(
 	}
 }
 
+const nThreads = 50;
+
 func DijkstraParallel(g *graph, sourceId uint64) []uint64 {
 	numVertices := len(g.ptr) - 1
 
@@ -98,6 +100,29 @@ func DijkstraParallel(g *graph, sourceId uint64) []uint64 {
 
 	finalizedVertices := make([]bool, numVertices)
 
+	ch := make(chan struct{j uint64; currentVertex uint64})
+
+	var wg sync.WaitGroup
+	wg.Add(nThreads)
+	for i:=0; i < nThreads; i++ {
+		go func() {
+			for {
+				if el, ok := <-ch; !ok {
+					wg.Done()
+					return
+				} else {
+					v := g.dst[el.j]
+
+					if !finalizedVertices[v] &&
+						shortestDistances[el.currentVertex] != math.MaxUint64 &&
+						shortestDistances[el.currentVertex]+g.w[el.j] < shortestDistances[v] {
+						shortestDistances[v] = shortestDistances[el.currentVertex] + g.w[el.j]
+					}
+				}
+			}
+		}()
+	}
+
 	// question: why only N-1 iterations?
 	// iterations of dijkstra
 	for i := 0; i < numVertices-1; i++ {
@@ -107,15 +132,17 @@ func DijkstraParallel(g *graph, sourceId uint64) []uint64 {
 
 		first, last := g.GetEdgeRange(uint64(currentVertex))
 
-		var wg sync.WaitGroup
-
 		for j := first; j < last; j++ {
-			wg.Add(1)
-			go dijkstraInnerLoop(j, g, currentVertex, shortestDistances, finalizedVertices, &wg)
+			// wg.Add(1)
+			// go dijkstraInnerLoop(j, g, currentVertex, shortestDistances, finalizedVertices, &wg)
+			ch <- struct{j uint64; currentVertex uint64}{j, currentVertex}
 		}
 
-		wg.Wait()
+
 	}
+
+	close(ch)
+		wg.Wait()
 
 	return shortestDistances
 }
