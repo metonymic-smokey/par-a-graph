@@ -99,9 +99,15 @@ func main() {
 
 	p_new := make([]float64, n)
 
+	chans := make([]chan float64, n)
+	for i := range chans {
+		chans[i] = make(chan float64, 100)
+	}
+
 	for looping > 0 {
 		for i = 0; i < n; i++ {
 			p_new[i] = 0.0
+			chans[i] <- 0.0
 		}
 
 		rowel := 0
@@ -112,37 +118,30 @@ func main() {
 
 		for i = 0; i < n; i = i + granularity {
 			rowel = row_ptr[i+1] - row_ptr[i]
-			chans := make([]chan float64, rowel+1)
-			for i := range chans {
-				chans[i] = make(chan float64)
-				chans[i] <- 0.0
-			}
 
 			go func(i, rowel, curcol int) {
 				defer wg.Done()
 				for j = 0; j < rowel; j++ {
-					p_new[col_ind[curcol]] = p_new[col_ind[curcol]] + val[curcol]*p[i]
+					// p_new[col_ind[curcol]] = p_new[col_ind[curcol]] + val[curcol]*p[i]
 					temp := <-chans[col_ind[curcol]]
 					temp += val[curcol] * p[i]
 					chans[col_ind[curcol]] <- temp
 					curcol++
 				}
 			}(i, rowel, curcol)
-			p_new[i] = <-chans[i]
+			// p_new[i] = <-chans[i]
 
-			for _, c := range chans {
-				<-c
+			// for _, c := range chans {
+			// 	<-c
 
-			}
+			// }
 		}
 
 		wg.Wait()
 
-		/*
-		   for i := 0;i<n;i++ {
-		       p_new[i] = <- chans[i]
-		   }
-		*/
+		for i := 0; i < n; i++ {
+			p_new[i] = <-chans[i]
+		}
 
 		for i = 0; i < n; i++ {
 			p_new[i] = d*p_new[i] + ((1.0 - d) / float64(n))
