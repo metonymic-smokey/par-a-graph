@@ -26,8 +26,8 @@ func main() {
 		fileContents = append(fileContents, scanner.Text())
 	}
 
-	n := 7
-	e := 9
+	n := 281903 + 10
+	e := 2312497
 	granularity := 4
 
 	val := make([]float64, e)
@@ -43,6 +43,9 @@ func main() {
 
 	for _, fc := range fileContents {
 		res := strings.SplitN(fc, ",", -1)
+		if len(res) < 2 {
+			continue
+		}
 		src, _ := strconv.Atoi(res[0])
 		dest, _ := strconv.Atoi(res[1])
 		//wt, _ := strconv.Atoi(res[2])
@@ -93,7 +96,6 @@ func main() {
 
 	looping := 1
 	k := 0
-	//parallel := 0
 
 	p_new := make([]float64, n)
 
@@ -110,16 +112,37 @@ func main() {
 
 		for i = 0; i < n; i = i + granularity {
 			rowel = row_ptr[i+1] - row_ptr[i]
-			go func(i, rowel int) {
+			chans := make([]chan float64, rowel+1)
+			for i := range chans {
+				chans[i] = make(chan float64)
+				chans[i] <- 0.0
+			}
+
+			go func(i, rowel, curcol int) {
 				defer wg.Done()
 				for j = 0; j < rowel; j++ {
 					p_new[col_ind[curcol]] = p_new[col_ind[curcol]] + val[curcol]*p[i]
+					temp := <-chans[col_ind[curcol]]
+					temp += val[curcol] * p[i]
+					chans[col_ind[curcol]] <- temp
 					curcol++
 				}
-			}(i, rowel)
+			}(i, rowel, curcol)
+			p_new[i] = <-chans[i]
+
+			for _, c := range chans {
+				<-c
+
+			}
 		}
 
 		wg.Wait()
+
+		/*
+		   for i := 0;i<n;i++ {
+		       p_new[i] = <- chans[i]
+		   }
+		*/
 
 		for i = 0; i < n; i++ {
 			p_new[i] = d*p_new[i] + ((1.0 - d) / float64(n))
