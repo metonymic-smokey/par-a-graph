@@ -3,6 +3,8 @@ package main
 import (
 	"math"
 	"sync"
+	// "time"
+	// "fmt"
 )
 
 // Finds the vertex with minimum distance value, from the set of vertices not yet included in shortest path tree
@@ -98,24 +100,71 @@ func DijkstraParallel(g *graph, sourceId uint64) []uint64 {
 
 	finalizedVertices := make([]bool, numVertices)
 
+	numParallel := 8
+
+	var wg sync.WaitGroup
+	curChs := make([]chan uint64, numParallel)
+	jCh := make(chan uint64, numParallel * 10)
+	quit := make(chan struct{})
+
+	for i := 0; i < numParallel; i++ {
+		curChs[i] = make(chan uint64)
+
+		go func(curCh chan uint64) {
+			currentVertex := sourceId
+			for {
+				select {
+
+				case curV := <-curCh:
+					currentVertex = curV
+
+				case j := <-jCh:
+					// TODO: inner loop here
+					v := g.dst[j]
+
+					if !finalizedVertices[v] &&
+						shortestDistances[currentVertex] != math.MaxUint64 &&
+						shortestDistances[currentVertex] + g.w[j] < shortestDistances[v] {
+							shortestDistances[v] = shortestDistances[currentVertex] + g.w[j]
+						}
+
+					wg.Done()
+
+				case <-quit:
+					return
+
+				}
+			}
+		}(curChs[i])
+	}
+
 	// question: why only N-1 iterations?
 	// iterations of dijkstra
+	// start := time.Now()
 	for i := 0; i < numVertices-1; i++ {
 		currentVertex := minVertex(shortestDistances, finalizedVertices, sourceId)
+		for _, curCh := range curChs {
+			curCh <- currentVertex
+		}
 
 		finalizedVertices[currentVertex] = true
 
 		first, last := g.GetEdgeRange(uint64(currentVertex))
 
-		var wg sync.WaitGroup
-
+		// startI := time.Now()
 		for j := first; j < last; j++ {
 			wg.Add(1)
-			go dijkstraInnerLoop(j, g, currentVertex, shortestDistances, finalizedVertices, &wg)
+			// go dijkstraInnerLoop(j, g, currentVertex, shortestDistances, finalizedVertices, &wg)
+			jCh <- j
 		}
+		// fmt.Printf("Adding to channel took:\t %v\n", time.Since(startI))
 
 		wg.Wait()
+		// fmt.Printf("Inner loop complete took:\t %v\n", time.Since(startI))
 	}
+	// fmt.Printf("Only outer loop took:\t %v\n", time.Since(start))
+
+	close(quit)
 
 	return shortestDistances
 }
