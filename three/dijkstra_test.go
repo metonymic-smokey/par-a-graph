@@ -4,7 +4,14 @@ import (
 	"fmt"
 	"testing"
 	"time"
+	"flag"
 )
+
+var numNodes int
+
+func init() {
+        flag.IntVar(&numNodes, "numNodes", 10, "number of nodes in random graph")
+}
 
 // stolen from stackoverflow: https://stackoverflow.com/a/15312097/11199009
 func testEq(a, b []uint64) bool {
@@ -73,9 +80,27 @@ func TestOurFirstGraph(t *testing.T) {
 }
 
 func TestRandomGraph(t *testing.T) {
-	g := RandomGraph1(1000, 0.5)
+	g := RandomGraph1(10, 0.5)
 
 	// g.PrintGraph()
 
 	compareTestSerialParallel(&g, 0, t)
+}
+
+func BenchmarkRandomGraphSerial(b *testing.B) {
+	g := RandomGraph1(numNodes, 0.5)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		Dijkstra(&g, 0)
+	}
+}
+
+func BenchmarkRandomGraphParallel(b *testing.B) {
+	g := RandomGraph1(numNodes, 0.5)
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		DijkstraParallel(&g, 0)
+	}
 }
