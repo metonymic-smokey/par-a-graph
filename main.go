@@ -110,24 +110,31 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, adj_array ma
 
 	n := len(pages)
 	//e := len(edges)
+
+	// pagerank vector
 	var x []float64
 	for i := 0; i < n; i++ {
 		x = append(x, 1-alpha)
 	}
+	// error between iterations
 	eps := 0.000001
 
+	// 
 	var nodes []int
 	for _, v := range node_to_index {
 		nodes = append(nodes, v)
 	}
 
-	degree_out := make([]float64, n)
+	fmt.Println(len(adj_array), n)
 
+	// out degree of each node
+	degree_out := make([]float64, n)
 	for node, _ := range adj_array {
 		degree_out[node] = float64(len(adj_array[node]))
 	}
 
 	//t := adj_array
+	// node -> list of nodes connecting it
 	s := make(map[int][]int)
 
 	for node, _ := range adj_array {
