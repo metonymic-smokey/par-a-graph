@@ -175,6 +175,15 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, adj_array ma
 		}
 	}
 
+	norm := 0.0
+	for _, v := range x {
+		norm += v
+	}
+
+	for i := range x {
+		x[i] /= norm
+	}
+
 	return x
 
 }
