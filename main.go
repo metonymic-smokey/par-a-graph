@@ -28,6 +28,7 @@ func readGraph() ([][2]int, [][2]string, map[int]int) {
 	for _, fc := range fileContents {
 		res := strings.Split(fc, ",")
 		if len(res) < 2 {
+			fmt.Println("less than 2 in dirLinks")
 			continue
 		}
 		src, _ := strconv.Atoi(res[0])
@@ -53,6 +54,7 @@ func readGraph() ([][2]int, [][2]string, map[int]int) {
 	for _, fc := range fc2 {
 		res := strings.Split(fc, ",")
 		if len(res) < 2 {
+			fmt.Println("less than 2 in pageNum")
 			continue
 		}
 		pageNum = append(pageNum, [2]string{res[0], res[1]})
@@ -71,22 +73,29 @@ func readGraph() ([][2]int, [][2]string, map[int]int) {
 		v += 1
 	}
 
-	for _, edge := range dirLinks {
-		edge[0] = node_to_index[edge[0]]
-		edge[1] = node_to_index[edge[1]]
+	for i, edge := range dirLinks {
+		if _, ok := node_to_index[edge[0]]; !ok {
+			fmt.Printf("node %v does not exist in node_to_index", edge[0])
+		}
+		if _, ok := node_to_index[edge[1]]; !ok {
+			fmt.Printf("node %v does not exist in node_to_index", edge[1])
+		}
+		dirLinks[i][0] = node_to_index[edge[0]]
+		dirLinks[i][1] = node_to_index[edge[1]]
 	}
 
 	return dirLinks, pageNum, node_to_index
 }
 
-func makeAdjArray(edges [][2]int) map[int][]int {
+func makeAdjArray(edges [][2]int, n int) map[int][]int {
 
 	adj_array := make(map[int][]int)
+
+	for i := 0; i < n; i++ {
+		adj_array[i] = make([]int, 0)
+	}
+
 	for _, edge := range edges {
-		_, ok := adj_array[edge[0]]
-		if !ok {
-			adj_array[edge[0]] = make([]int, 0)
-		}
 		adj_array[edge[0]] = append(adj_array[edge[0]], edge[1])
 	}
 
@@ -129,8 +138,8 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, adj_array ma
 
 	// out degree of each node
 	degree_out := make([]float64, n)
-	for node, _ := range adj_array {
-		degree_out[node] = float64(len(adj_array[node]))
+	for i, nodes := range adj_array {
+		degree_out[i] = float64(len(nodes))
 	}
 
 	//t := adj_array
@@ -173,7 +182,7 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, adj_array ma
 func main() {
 
 	edges, pages, node_to_index := readGraph()
-	adj_array := makeAdjArray(edges)
+	adj_array := makeAdjArray(edges, len(pages))
 	pageRank := topoPageRank(edges, pages, 0.85, adj_array, node_to_index)
 	for i := 0; i < len(pageRank); i++ {
 		fmt.Println(pageRank[i])
