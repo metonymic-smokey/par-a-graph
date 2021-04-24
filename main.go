@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -120,9 +121,10 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, adj_array ma
 		nodes = append(nodes, v)
 	}
 
-	var degree_out []float64
-	for i := 0; i < n; i++ {
-		degree_out = append(degree_out, 0)
+	degree_out := make([]float64, n)
+
+	for node, _ := range adj_array {
+		degree_out[node] = float64(len(adj_array[node]))
 	}
 
 	//t := adj_array
@@ -138,12 +140,7 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, adj_array ma
 		}
 	}
 
-	var delta []float64
-	for i := 0; i < n; i++ {
-		delta = append(delta, 0)
-	}
-
-	//fmt.Println(len(x))
+	max_delta := 0.0
 
 	for true {
 		for _, v := range nodes {
@@ -155,9 +152,9 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, adj_array ma
 				}
 			}
 			x[v] = alpha*sum_value + (1 - alpha)
-			delta[v] = x[v] - tmp[v]
+			max_delta = math.Max(max_delta, x[v]-tmp[v])
 		}
-		if max(delta) < eps {
+		if max_delta < eps {
 			break
 		}
 	}
