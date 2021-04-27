@@ -3,11 +3,13 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/dcadenas/pagerank"
+	"math"
 	"os"
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/dcadenas/pagerank"
 )
 
 func TestTopoPageRank(t *testing.T) {
@@ -57,7 +59,9 @@ func TestTopoPageRank(t *testing.T) {
 	}
 
 	for node, _ := range node_to_index {
-		if observed[node] != expected[node] {
+        diff := math.Abs(observed[node] - expected[node])
+        fmt.Println("DIFF: ", diff)
+		if diff > 10e-6{
 			t.Errorf("Page rank not matching for node %d; expected: %e, observed: %e", node, expected[node], observed[node])
 		}
 	}

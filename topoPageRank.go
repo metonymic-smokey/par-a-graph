@@ -1,6 +1,8 @@
 package main
 
-import ()
+import (
+    "math"
+)
 
 func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, adj_array map[int][]int, node_to_index map[int]int) []float64 {
 
@@ -11,7 +13,7 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, adj_array ma
 	var x []float64
 
 	for i := 0; i < n; i++ {
-		x = append(x, 1-alpha)
+		x = append(x, 1/float64(n))
 	}
 
 	// error between iterations
@@ -45,9 +47,10 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, adj_array ma
 
 	//max_delta := 0.0
 	delta := make([]float64, n)
-
+	
 	for true {
 
+        deltaSum := 0.0
 		var leak float64
 
 		for _, v := range nodes {
@@ -68,22 +71,23 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, adj_array ma
 				}
 			}
 			x[v] = (1-alpha)/float64(len(nodes)) + alpha*sum_value + leak/float64(len(nodes))
-			delta[v] = x[v] - tmp
+			delta[v] = math.Abs(x[v] - tmp)
+            deltaSum += delta[v]
 		}
 
-		if max(delta) < eps {
+		if deltaSum < eps {
 			break
 		}
 	}
 
-	norm := 0.0
-	for _, v := range x {
-		norm += v
-	}
+    norm := 0.0
+    for _, v := range x {
+        norm += v
+    }
 
-	for i := range x {
-		x[i] /= norm
-	}
+    for i := range x {
+        x[i] /= norm
+    }
 
 	return x
 
