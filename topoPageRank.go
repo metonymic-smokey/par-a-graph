@@ -1,8 +1,6 @@
 package main
 
-import (
-	"math"
-)
+import ()
 
 func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, adj_array map[int][]int, node_to_index map[int]int) []float64 {
 
@@ -11,9 +9,11 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, adj_array ma
 
 	// pagerank vector
 	var x []float64
+
 	for i := 0; i < n; i++ {
 		x = append(x, 1-alpha)
 	}
+
 	// error between iterations
 	eps := 0.000001
 
@@ -43,21 +43,35 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, adj_array ma
 		}
 	}
 
-	max_delta := 0.0
+	//max_delta := 0.0
+	delta := make([]float64, n)
 
 	for true {
+
+		var leak float64
+
 		for _, v := range nodes {
-			tmp := x
+			if len(s[v]) == 0 { //dangling nodes
+				leak += x[v]
+			}
+		}
+
+		leak *= alpha
+
+		for _, v := range nodes {
+			tmp := x[v]
 			sum_value := 0.0
 			if _, ok := s[v]; ok {
+
 				for _, w := range s[v] {
 					sum_value += x[w] / degree_out[w]
 				}
 			}
-			x[v] = alpha*sum_value + (1 - alpha)
-			max_delta = math.Max(max_delta, x[v]-tmp[v])
+			x[v] = (1-alpha)/float64(len(nodes)) + alpha*sum_value + leak/float64(len(nodes))
+			delta[v] = x[v] - tmp
 		}
-		if max_delta < eps {
+
+		if max(delta) < eps {
 			break
 		}
 	}
