@@ -2,6 +2,7 @@ package main
 
 import (
 	"math"
+	"sync"
 )
 
 func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64, adj_array map[int][]int, node_to_index map[int]int) []float64 {
@@ -58,19 +59,26 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 
 		leak *= alpha
 
-		for _, v := range nodes {
-			tmp := x[v]
-			sum_value := 0.0
-			if _, ok := s[v]; ok {
+		var wg sync.WaitGroup
+		wg.Add(len(nodes))
 
-				for _, w := range s[v] {
-					sum_value += x[w] / degree_out[w]
+		for _, v := range nodes {
+			go func(v int) {
+				defer wg.Done()
+				tmp := x[v]
+				sum_value := 0.0
+				if _, ok := s[v]; ok {
+
+					for _, w := range s[v] {
+						sum_value += x[w] / degree_out[w]
+					}
 				}
-			}
-			x[v] = (1-alpha)/float64(len(nodes)) + alpha*sum_value + leak/float64(len(nodes))
-			delta[v] = math.Abs(x[v] - tmp)
-			deltaSum += delta[v]
+				x[v] = (1-alpha)/float64(len(nodes)) + alpha*sum_value + leak/float64(len(nodes))
+				delta[v] = math.Abs(x[v] - tmp)
+				deltaSum += delta[v]
+			}(v)
 		}
+		wg.Wait()
 
 		if deltaSum < eps {
 			break

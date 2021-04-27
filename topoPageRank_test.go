@@ -16,6 +16,8 @@ func TestTopoPageRank(t *testing.T) {
 
 	edgeFileName := "dirLinks.txt"
 	nodeFileName := "pageNum.txt"
+	//edgeFileName := "example"
+	//nodeFileName := "examplePageNum"
 
 	f, err := os.Open(edgeFileName)
 	if err != nil {
@@ -72,7 +74,7 @@ func TestTopoPageRank(t *testing.T) {
 func BenchmarkSmallGraphE6(b *testing.B) {
 	edgeFileName := "./example"
 	nodeFileName := "./examplePageNum"
-	enableLog = false;
+	enableLog = false
 
 	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
 	adj_array := makeAdjArray(edges, len(pages))
@@ -90,7 +92,7 @@ func BenchmarkSmallGraphE6(b *testing.B) {
 func BenchmarkSmallGraphE9(b *testing.B) {
 	edgeFileName := "./example"
 	nodeFileName := "./examplePageNum"
-	enableLog = false;
+	enableLog = false
 
 	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
 	adj_array := makeAdjArray(edges, len(pages))
@@ -108,7 +110,7 @@ func BenchmarkSmallGraphE9(b *testing.B) {
 func BenchmarkSmallGraphE11(b *testing.B) {
 	edgeFileName := "./example"
 	nodeFileName := "./examplePageNum"
-	enableLog = false;
+	enableLog = false
 
 	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
 	adj_array := makeAdjArray(edges, len(pages))
