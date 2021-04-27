@@ -34,9 +34,17 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 
 	// out degree of each node
 	degree_out := make([]float64, n)
+
+	wgAssign.Add(n)
+
 	for i, nodes := range adj_array {
-		degree_out[i] = float64(len(nodes))
+		go func(i int, nodes []int) {
+			defer wgAssign.Done()
+			degree_out[i] = float64(len(nodes))
+		}(i, nodes)
 	}
+
+	wgAssign.Wait()
 
 	//t := adj_array
 	// node -> list of nodes connecting it
