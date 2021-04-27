@@ -182,3 +182,57 @@ func BenchmarkQuoraGraphE11(b *testing.B) {
 		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
 	}
 }
+
+func BenchmarkWikiVoteGraphE6(b *testing.B) {
+	edgeFileName := "./wiki-vote-edges.txt"
+	nodeFileName := "./wiki-vote-nodes.txt"
+	enableLog = false
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-6
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
+
+func BenchmarkWikiVoteGraphE9(b *testing.B) {
+	edgeFileName := "./wiki-vote-edges.txt"
+	nodeFileName := "./wiki-vote-nodes.txt"
+	enableLog = false
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-9
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
+
+func BenchmarkWikiVoteGraphE11(b *testing.B) {
+	edgeFileName := "./wiki-vote-edges.txt"
+	nodeFileName := "./wiki-vote-nodes.txt"
+	enableLog = false
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-11
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
