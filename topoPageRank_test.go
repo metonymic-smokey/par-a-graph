@@ -14,7 +14,10 @@ import (
 
 func TestTopoPageRank(t *testing.T) {
 
-	f, err := os.Open("dirLinks.txt")
+	edgeFileName := "dirLinks.txt"
+	nodeFileName := "pageNum.txt"
+
+	f, err := os.Open(edgeFileName)
 	if err != nil {
 		panic(err)
 	}
@@ -51,17 +54,71 @@ func TestTopoPageRank(t *testing.T) {
 		expected[identifier] = rank
 	})
 
-	edges, pages, node_to_index := readGraph()
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
 	adj_array := makeAdjArray(edges, len(pages))
-	pageRank := topoPageRank(edges, pages, alpha, adj_array, node_to_index)
+	pageRank := topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
 	for node, index := range node_to_index {
 		observed[node] = pageRank[index]
 	}
 
-	for node, _ := range node_to_index {
-        diff := math.Abs(observed[node] - expected[node])
-		if diff > 10e-6{
+	for node := range node_to_index {
+		diff := math.Abs(observed[node] - expected[node])
+		if diff > 10e-6 {
 			t.Errorf("Page rank not matching for node %d; expected: %e, observed: %e", node, expected[node], observed[node])
 		}
+	}
+}
+
+func BenchmarkSmallGraphE6(b *testing.B) {
+	edgeFileName := "./example"
+	nodeFileName := "./examplePageNum"
+	enableLog = false;
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-6
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
+
+func BenchmarkSmallGraphE9(b *testing.B) {
+	edgeFileName := "./example"
+	nodeFileName := "./examplePageNum"
+	enableLog = false;
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-9
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
+
+func BenchmarkSmallGraphE11(b *testing.B) {
+	edgeFileName := "./example"
+	nodeFileName := "./examplePageNum"
+	enableLog = false;
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-11
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
 	}
 }

@@ -8,8 +8,10 @@ import (
 	"strings"
 )
 
-func readGraph() ([][2]int, [][2]string, map[int]int) {
-	f, err := os.Open("dirLinks.txt")
+var enableLog = true
+
+func readGraph(edgeFileName string, nodeFileName string) ([][2]int, [][2]string, map[int]int) {
+	f, err := os.Open(edgeFileName)
 	if err != nil {
 		panic(err)
 	}
@@ -35,7 +37,7 @@ func readGraph() ([][2]int, [][2]string, map[int]int) {
 		dirLinks = append(dirLinks, [2]int{src, dest})
 	}
 
-	f, err = os.Open("pageNum.txt")
+	f, err = os.Open(nodeFileName)
 	if err != nil {
 		panic(err)
 	}
@@ -59,8 +61,10 @@ func readGraph() ([][2]int, [][2]string, map[int]int) {
 		pageNum = append(pageNum, [2]string{res[0], res[1]})
 	}
 
-	fmt.Println("No. of edges: ", len(dirLinks))
-	fmt.Println("No. of nodes: ", len(pageNum))
+	if enableLog {
+		fmt.Println("No. of edges: ", len(dirLinks))
+		fmt.Println("No. of nodes: ", len(pageNum))
+	}
 	//fmt.Println("No. of nodes: ", 2080370)
 
 	v := 0
