@@ -11,14 +11,23 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 	//e := len(edges)
 
 	// pagerank vector
-	var x []float64
+	x := make([]float64, n)
+
+	var wgAssign sync.WaitGroup
+	wgAssign.Add(n)
 
 	for i := 0; i < n; i++ {
-		x = append(x, 1/float64(n))
+		go func(i int) {
+			defer wgAssign.Done()
+			x[i] = 1 / float64(n)
+		}(i)
 	}
 
-	//
+	wgAssign.Wait()
+
+	//all the nodes in 1 slice
 	var nodes []int
+
 	for _, v := range node_to_index {
 		nodes = append(nodes, v)
 	}
@@ -43,7 +52,6 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 		}
 	}
 
-	//max_delta := 0.0
 	delta := make([]float64, n)
 
 	for true {
