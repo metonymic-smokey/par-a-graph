@@ -60,7 +60,6 @@ func TestTopoPageRank(t *testing.T) {
 
 	for node, _ := range node_to_index {
         diff := math.Abs(observed[node] - expected[node])
-        fmt.Println("DIFF: ", diff)
 		if diff > 10e-6{
 			t.Errorf("Page rank not matching for node %d; expected: %e, observed: %e", node, expected[node], observed[node])
 		}
