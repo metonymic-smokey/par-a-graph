@@ -12,12 +12,7 @@ import (
 	"github.com/dcadenas/pagerank"
 )
 
-func TestTopoPageRank(t *testing.T) {
-
-	edgeFileName := "dirLinks.txt"
-	nodeFileName := "pageNum.txt"
-	//edgeFileName := "example"
-	//nodeFileName := "examplePageNum"
+func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName string, alpha float64, eps float64) {
 
 	f, err := os.Open(edgeFileName)
 	if err != nil {
@@ -46,9 +41,6 @@ func TestTopoPageRank(t *testing.T) {
 		graph.Link(src, dest)
 	}
 
-	alpha := 0.85
-	eps := 0.000001
-
 	observed := make(map[int]float64)
 	expected := make(map[int]float64)
 
@@ -69,6 +61,18 @@ func TestTopoPageRank(t *testing.T) {
 			t.Errorf("Page rank not matching for node %d; expected: %e, observed: %e", node, expected[node], observed[node])
 		}
 	}
+}
+
+func TestSmallGraph(t *testing.T) {
+	testHelperTopoPageRank(t, "./example", "./examplePageNum", 0.85, 0.000001)
+}
+
+func TestQuoraGraph(t *testing.T) {
+	testHelperTopoPageRank(t, "./quora_edges.txt", "./quora_nodes.txt", 0.85, 0.000001)
+}
+
+func TestBigGraph(t *testing.T) {
+	testHelperTopoPageRank(t, "./dirLinks.txt", "./pageNum.txt", 0.85, 0.000001)
 }
 
 func BenchmarkSmallGraphE6(b *testing.B) {
@@ -110,6 +114,60 @@ func BenchmarkSmallGraphE9(b *testing.B) {
 func BenchmarkSmallGraphE11(b *testing.B) {
 	edgeFileName := "./example"
 	nodeFileName := "./examplePageNum"
+	enableLog = false
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-11
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
+
+func BenchmarkQuoraGraphE6(b *testing.B) {
+	edgeFileName := "./quora_edges.txt"
+	nodeFileName := "./quora_nodes.txt"
+	enableLog = false
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-6
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
+
+func BenchmarkQuoraGraphE9(b *testing.B) {
+	edgeFileName := "./quora_edges.txt"
+	nodeFileName := "./quora_nodes.txt"
+	enableLog = false
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-9
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
+
+func BenchmarkQuoraGraphE11(b *testing.B) {
+	edgeFileName := "./quora_edges.txt"
+	nodeFileName := "./quora_nodes.txt"
 	enableLog = false
 
 	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
