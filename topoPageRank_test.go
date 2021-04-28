@@ -71,8 +71,44 @@ func TestQuoraGraph(t *testing.T) {
 	testHelperTopoPageRank(t, "./quora_edges.txt", "./quora_nodes.txt", 0.85, 0.000001)
 }
 
-func TestBigGraph(t *testing.T) {
+func TestLargeGraph(t *testing.T) {
 	testHelperTopoPageRank(t, "./dirLinks.txt", "./pageNum.txt", 0.85, 0.000001)
+}
+
+func BenchmarkLargeGraphSerialE6(b *testing.B) {
+	edgeFileName := "./dirLinks.txt"
+	nodeFileName := "./pageNum.txt"
+	enableLog = false
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-6
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRankSerial(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
+
+func BenchmarkLargeGraphE6(b *testing.B) {
+	edgeFileName := "./dirLinks.txt"
+	nodeFileName := "./pageNum.txt"
+	enableLog = false
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-6
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
 }
 
 func BenchmarkSmallGraphE6(b *testing.B) {
@@ -93,6 +129,43 @@ func BenchmarkSmallGraphE6(b *testing.B) {
 	}
 }
 
+func BenchmarkLargeGraphSerialE9(b *testing.B) {
+	edgeFileName := "./dirLinks.txt"
+	nodeFileName := "./pageNum.txt"
+	enableLog = false
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-9
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRankSerial(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
+
+func BenchmarkLargeGraphE9(b *testing.B) {
+	edgeFileName := "./dirLinks.txt"
+	nodeFileName := "./pageNum.txt"
+
+	enableLog = false
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-9
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
+
 func BenchmarkSmallGraphE9(b *testing.B) {
 	edgeFileName := "./example"
 	nodeFileName := "./examplePageNum"
@@ -103,6 +176,42 @@ func BenchmarkSmallGraphE9(b *testing.B) {
 
 	alpha := 0.85
 	eps := 10e-9
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
+
+func BenchmarkLargeGraphSerialE11(b *testing.B) {
+	edgeFileName := "./dirLinks.txt"
+	nodeFileName := "./pageNum.txt"
+	enableLog = false
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-11
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRankSerial(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
+
+func BenchmarkLargeGraphE11(b *testing.B) {
+	edgeFileName := "./dirLinks.txt"
+	nodeFileName := "./pageNum.txt"
+	enableLog = false
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-11
 
 	b.ResetTimer()
 
