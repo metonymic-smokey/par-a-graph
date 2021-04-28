@@ -57,7 +57,7 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 
 	for node := range node_to_index {
 		diff := math.Abs(observed[node] - expected[node])
-		if diff > 10e-6 {
+		if diff > 10e-7 {
 			t.Errorf("Page rank not matching for node %d; expected: %e, observed: %e", node, expected[node], observed[node])
 		}
 	}
@@ -277,60 +277,6 @@ func BenchmarkQuoraGraphE9(b *testing.B) {
 func BenchmarkQuoraGraphE11(b *testing.B) {
 	edgeFileName := "./quora_edges.txt"
 	nodeFileName := "./quora_nodes.txt"
-	enableLog = false
-
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-11
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
-	}
-}
-
-func BenchmarkWikiVoteGraphE6(b *testing.B) {
-	edgeFileName := "./wiki-vote-edges.txt"
-	nodeFileName := "./wiki-vote-nodes.txt"
-	enableLog = false
-
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-6
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
-	}
-}
-
-func BenchmarkWikiVoteGraphE9(b *testing.B) {
-	edgeFileName := "./wiki-vote-edges.txt"
-	nodeFileName := "./wiki-vote-nodes.txt"
-	enableLog = false
-
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-9
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
-	}
-}
-
-func BenchmarkWikiVoteGraphE11(b *testing.B) {
-	edgeFileName := "./wiki-vote-edges.txt"
-	nodeFileName := "./wiki-vote-nodes.txt"
 	enableLog = false
 
 	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
