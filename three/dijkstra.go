@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"math"
 	"sync"
 )
@@ -22,6 +23,25 @@ func minVertex(
 	}
 
 	return minId
+}
+
+// same as above but returns minvalue too
+func minVertex2(
+	shortestDistances []uint64,
+	finalizedVertices []bool,
+	sourceId uint64) (uint64, uint64) {
+	minId := sourceId
+
+	var min uint64 = math.MaxUint64
+
+	for i, v := range finalizedVertices {
+		if !v && shortestDistances[i] <= min {
+			min = shortestDistances[i]
+			minId = uint64(i)
+		}
+	}
+
+	return min, minId
 }
 
 func Dijkstra(g *graph, sourceId uint64) []uint64 {
@@ -89,6 +109,29 @@ func DijkstraParallel(g *graph, sourceId uint64) []uint64 {
 	numVertices := len(g.ptr) - 1
 
 	shortestDistances := make([]uint64, numVertices)
+	// instatic := make([]uint64, numVertices)
+
+	incoming_mins := make([]uint64, numVertices)
+	outgoing_mins := make([]uint64, numVertices)
+	for i := range incoming_mins {
+		incoming_mins[i] = math.MaxUint64
+	}
+	incoming_min_ch := make(chan struct {
+		ind uint64
+		min uint64
+	})
+
+	// update incoming_mins using fan in
+	// TODO: how to synchronise and close this when done?
+	// TODO: can get more parallelization here by using numVertices goroutines
+	go func() {
+		for i := range incoming_min_ch {
+			if i.min < incoming_mins[i.ind] {
+				incoming_mins[i.ind] = i.min
+			}
+		}
+	}()
+	// outstatic := make([]uint64, numVertices)
 
 	for i := range shortestDistances {
 		shortestDistances[i] = math.MaxUint64
@@ -98,24 +141,79 @@ func DijkstraParallel(g *graph, sourceId uint64) []uint64 {
 
 	finalizedVertices := make([]bool, numVertices)
 
-	// question: why only N-1 iterations?
-	// iterations of dijkstra
-	for i := 0; i < numVertices-1; i++ {
-		currentVertex := minVertex(shortestDistances, finalizedVertices, sourceId)
+	for i := 0; i < numVertices; i++ {
+		first, last := g.GetEdgeRange(uint64(i))
 
-		finalizedVertices[currentVertex] = true
-
-		first, last := g.GetEdgeRange(uint64(currentVertex))
-
-		var wg sync.WaitGroup
-
+		var outgoing_min uint64 = math.MaxUint64
 		for j := first; j < last; j++ {
-			wg.Add(1)
-			go dijkstraInnerLoop(j, g, currentVertex, shortestDistances, finalizedVertices, &wg)
+			if g.w[j] < outgoing_min {
+				outgoing_min = g.w[j]
+			}
+			incoming_min_ch <- struct {
+				ind uint64
+				min uint64
+			}{g.dst[j], g.w[j]}
 		}
 
-		wg.Wait()
+		outgoing_mins[i] = outgoing_min
 	}
+
+	close(incoming_min_ch)
+	fmt.Println(incoming_mins)
+	fmt.Println(outgoing_mins)
+
+	// start phases here
+	for phase_no := 0; ; phase_no++ {
+		// identification
+		minValue, _ := minVertex2(shortestDistances, finalizedVertices, sourceId)
+
+		identifiedVertices := make([]uint64, 0)
+
+		for i := 0; i < numVertices; i++ {
+			if !finalizedVertices[i] && (shortestDistances[i]-incoming_mins[i] <= minValue ||
+				shortestDistances[i] <= minValue+outgoing_mins[i]) {
+					identifiedVertices = append(identifiedVertices, uint64(i))
+			}
+		}
+
+		// TODO: break condition
+
+		// settling?
+		// numIdentVertices := len(identifiedVertices)
+		for i := range identifiedVertices {
+			start, end := g.GetEdgeRange(identifiedVertices[i])
+
+			for j := start; j < end; j++ {
+				if v := g.dst[j]; !finalizedVertices[v] &&
+					shortestDistances[i] != math.MaxUint64 &&
+					shortestDistances[i]+g.w[j] < shortestDistances[v] {
+					shortestDistances[v] = shortestDistances[i] + g.w[j]
+				}
+			}
+		}
+
+		break
+	}
+
+	// // question: why only N-1 iterations?
+	// // iterations of dijkstra
+	// for i := 0; i < numVertices-1; i++ {
+
+	// 	finalizedVertices[currentVertex] = true
+
+	// 	first, last := g.GetEdgeRange(uint64(currentVertex))
+
+	// 	for j := first; j < last; j++ {
+	// 		v := g.dst[j]
+
+	// 		if !finalizedVertices[v] &&
+	// 			shortestDistances[currentVertex] != math.MaxUint64 &&
+	// 			shortestDistances[currentVertex]+g.w[j] < shortestDistances[v] {
+	// 			shortestDistances[v] = shortestDistances[currentVertex] + g.w[j]
+	// 		}
+	// 	}
+
+	// }
 
 	return shortestDistances
 }

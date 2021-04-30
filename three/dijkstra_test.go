@@ -73,7 +73,7 @@ func TestOurFirstGraph(t *testing.T) {
 }
 
 func TestRandomGraph(t *testing.T) {
-	g := RandomGraph1(1000, 0.5)
+	g := RandomGraph1(100, 0.5)
 
 	// g.PrintGraph()
 
