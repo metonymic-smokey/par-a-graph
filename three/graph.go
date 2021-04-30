@@ -35,7 +35,7 @@ func RandomGraph1(nodes int, p float64) graph {
 			if rnum < p {
 				// graph[i] = append(graph[i], {j, })
 				// graph[i][j] = mapItem{rand.Float64()}
-				ag.addEdge(i, j, rand.Int())
+				ag.addEdge(i, j, rand.Intn(1000))
 			}
 		}
 	}

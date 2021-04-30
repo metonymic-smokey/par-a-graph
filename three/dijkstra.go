@@ -170,18 +170,24 @@ func DijkstraParallel(g *graph, sourceId uint64) []uint64 {
 		identifiedVertices := make([]uint64, 0)
 
 		for i := 0; i < numVertices; i++ {
-			if !finalizedVertices[i] && (shortestDistances[i]-incoming_mins[i] <= minValue ||
+			if !finalizedVertices[i] && shortestDistances[i] != math.MaxUint64 && (shortestDistances[i]-incoming_mins[i] <= minValue ||
 				shortestDistances[i] <= minValue+outgoing_mins[i]) {
-					identifiedVertices = append(identifiedVertices, uint64(i))
+				identifiedVertices = append(identifiedVertices, uint64(i))
 			}
 		}
 
+        // fmt.Println("identifiedVertices", identifiedVertices)
+
 		// TODO: break condition
+		if len(identifiedVertices) == 0 {
+			break
+		}
 
 		// settling?
 		// numIdentVertices := len(identifiedVertices)
-		for i := range identifiedVertices {
-			start, end := g.GetEdgeRange(identifiedVertices[i])
+		for _, i := range identifiedVertices {
+            finalizedVertices[i] = true
+			start, end := g.GetEdgeRange(i)
 
 			for j := start; j < end; j++ {
 				if v := g.dst[j]; !finalizedVertices[v] &&
@@ -191,8 +197,6 @@ func DijkstraParallel(g *graph, sourceId uint64) []uint64 {
 				}
 			}
 		}
-
-		break
 	}
 
 	// // question: why only N-1 iterations?
