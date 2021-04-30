@@ -99,6 +99,7 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 
 	// pagerank vector
 	x := make([]float64, n)
+	new_x := make([]float64, n)
 
 	var wgAssign sync.WaitGroup
 	wgAssign.Add(n)
@@ -176,14 +177,18 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 						sum_value += x[w] / degree_out[w]
 					}
 				}
-				x[v] = (1-alpha)/float64(len(nodes)) + alpha*sum_value + leak/float64(len(nodes))
-				delta[v] = math.Abs(x[v] - tmp)
+				new_x[v] = (1-alpha)/float64(len(nodes)) + alpha*sum_value + leak/float64(len(nodes))
+				delta[v] = math.Abs(new_x[v] - tmp)
 			}(v)
 		}
 		wg.Wait()
 
 		for _, val := range delta {
 			deltaSum += val
+		}
+
+		for i, new_val := range new_x {
+			x[i] = new_val
 		}
 
 		if deltaSum < eps {
