@@ -42,6 +42,7 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 	}
 
 	observed := make(map[int]float64)
+	observedSerial := make(map[int]float64)
 	expected := make(map[int]float64)
 
 	graph.Rank(alpha, eps, func(identifier int, rank float64) {
@@ -50,15 +51,33 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 
 	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
 	adj_array := makeAdjArray(edges, len(pages))
+
+	pageRankSerial := topoPageRankSerial(edges, pages, alpha, eps, adj_array, node_to_index)
+	for node, index := range node_to_index {
+		observedSerial[node] = pageRankSerial[index]
+	}
+
 	pageRank := topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
 	for node, index := range node_to_index {
 		observed[node] = pageRank[index]
 	}
 
+    threshold := 10e-7
+
 	for node := range node_to_index {
 		diff := math.Abs(observed[node] - expected[node])
-		if diff > 10e-7 {
-			t.Errorf("Page rank not matching for node %d; expected: %e, observed: %e", node, expected[node], observed[node])
+		if diff > threshold {
+			t.Errorf("Parallel vs expected: Page rank not matching for node %d; expected: %e, parallel: %e", node, expected[node], observed[node])
+		}
+
+		diff = math.Abs(observedSerial[node] - expected[node])
+		if diff > threshold {
+			t.Errorf("Serial vs expected: Page rank not matching for node %d; expected: %e, serial: %e", node, expected[node], observedSerial[node])
+		}
+
+		diff = math.Abs(observedSerial[node] - observed[node])
+		if diff > threshold {
+			t.Errorf("Serial vs Parallel: Page rank not matching for node %d; parallel: %e, serial: %e", node, observed[node], observedSerial[node])
 		}
 	}
 }
