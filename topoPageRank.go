@@ -12,6 +12,7 @@ func topoPageRankSerial(edges [][2]int, pages [][2]string, alpha float64, eps fl
 
 	// pagerank vector
 	x := make([]float64, n)
+	new_x := make([]float64, n)
 
 	for i := 0; i < n; i++ {
 		x[i] = 1 / float64(n)
@@ -69,9 +70,13 @@ func topoPageRankSerial(edges [][2]int, pages [][2]string, alpha float64, eps fl
 					sum_value += x[w] / degree_out[w]
 				}
 			}
-			x[v] = (1-alpha)/float64(len(nodes)) + alpha*sum_value + leak/float64(len(nodes))
-			delta[v] = math.Abs(x[v] - tmp)
+			new_x[v] = (1-alpha)/float64(len(nodes)) + alpha*sum_value + leak/float64(len(nodes))
+			delta[v] = math.Abs(new_x[v] - tmp)
 			deltaSum += delta[v]
+		}
+
+		for i, new_val := range new_x {
+			x[i] = new_val
 		}
 
 		if deltaSum < eps {
