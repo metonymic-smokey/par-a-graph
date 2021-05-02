@@ -106,17 +106,9 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 	x := make([]float64, n)
 	new_x := make([]float64, n)
 
-	var wgAssign sync.WaitGroup
-	wgAssign.Add(n)
-
 	for i := 0; i < n; i++ {
-		go func(i int) {
-			defer wgAssign.Done()
-			x[i] = 1 / float64(n)
-		}(i)
+		x[i] = 1 / float64(n)
 	}
-
-	wgAssign.Wait()
 
 	//all the nodes in 1 slice
 	var nodes []int
@@ -128,16 +120,9 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 	// out degree of each node
 	degree_out := make([]float64, n)
 
-	wgAssign.Add(n)
-
 	for i, nodes := range adj_array {
-		go func(i int, nodes []int) {
-			defer wgAssign.Done()
-			degree_out[i] = float64(len(nodes))
-		}(i, nodes)
+		degree_out[i] = float64(len(nodes))
 	}
-
-	wgAssign.Wait()
 
 	//t := adj_array
 	// node -> list of nodes connecting it
@@ -154,28 +139,44 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 	}
 
 	delta := make([]float64, n)
+	numNodes := float64(len(nodes))
+	alphaTerm := (1 - alpha) / (numNodes)
 
 	numParallel := 8
-	ch := make(chan int, 1000)
+	ch := make(chan struct{})
 	var wg sync.WaitGroup
 	var leak float64
 
+	// new idea
+	// partition total nodes
+	// give set number of nodes to each goroutine
+	blockSize := n / numParallel
 	for i := 0; i < numParallel; i++ {
-		go func() {
+
+		var mySlice []int
+		if i == numParallel-1 {
+			mySlice = nodes[blockSize*i:]
+		} else {
+			mySlice = nodes[blockSize*i : blockSize*(i+1)]
+		}
+
+		go func(thisIsMySlice []int) {
 			for {
-				v := <-ch
-				tmp := x[v]
-				sumValue := 0.0
-				if _, ok := s[v]; ok {
-					for _, w := range s[v] {
-						sumValue += x[w] / degree_out[w]
+				<-ch
+				for _, v := range thisIsMySlice {
+					tmp := x[v]
+					sumValue := 0.0
+					if _, ok := s[v]; ok {
+						for _, w := range s[v] {
+							sumValue += x[w] / degree_out[w]
+						}
 					}
+					new_x[v] = alphaTerm + alpha*sumValue + leak/numNodes
+					delta[v] = math.Abs(new_x[v] - tmp)
 				}
-				new_x[v] = (1-alpha)/float64(len(nodes)) + alpha*sumValue + leak/float64(len(nodes))
-				delta[v] = math.Abs(new_x[v] - tmp)
 				wg.Done()
 			}
-		}()
+		}(mySlice)
 	}
 
 	for {
@@ -191,19 +192,15 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 
 		leak *= alpha
 
-		wg.Add(len(nodes))
-
-		for _, v := range nodes {
-			ch <- v
+		wg.Add(numParallel)
+		for i := 0; i < numParallel; i++ {
+			ch <- struct{}{}
 		}
 		wg.Wait()
 
-		for _, val := range delta {
-			deltaSum += val
-		}
-
-		for i, new_val := range new_x {
-			x[i] = new_val
+		for i, newVal := range new_x {
+			x[i] = newVal
+			deltaSum += delta[i]
 		}
 
 		if deltaSum < eps {
