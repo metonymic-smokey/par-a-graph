@@ -155,10 +155,33 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 
 	delta := make([]float64, n)
 
-	for true {
+	numParallel := 8
+	ch := make(chan int, 1000)
+	var wg sync.WaitGroup
+	var leak float64
+
+	for i := 0; i < numParallel; i++ {
+		go func() {
+			for {
+				v := <-ch
+				tmp := x[v]
+				sumValue := 0.0
+				if _, ok := s[v]; ok {
+					for _, w := range s[v] {
+						sumValue += x[w] / degree_out[w]
+					}
+				}
+				new_x[v] = (1-alpha)/float64(len(nodes)) + alpha*sumValue + leak/float64(len(nodes))
+				delta[v] = math.Abs(new_x[v] - tmp)
+				wg.Done()
+			}
+		}()
+	}
+
+	for {
 
 		deltaSum := 0.0
-		var leak float64
+		leak = 0.0
 
 		for _, v := range nodes {
 			if len(s[v]) == 0 { //dangling nodes
@@ -168,23 +191,10 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 
 		leak *= alpha
 
-		var wg sync.WaitGroup
 		wg.Add(len(nodes))
 
 		for _, v := range nodes {
-			go func(v int) {
-				defer wg.Done()
-				tmp := x[v]
-				sum_value := 0.0
-				if _, ok := s[v]; ok {
-
-					for _, w := range s[v] {
-						sum_value += x[w] / degree_out[w]
-					}
-				}
-				new_x[v] = (1-alpha)/float64(len(nodes)) + alpha*sum_value + leak/float64(len(nodes))
-				delta[v] = math.Abs(new_x[v] - tmp)
-			}(v)
+			ch <- v
 		}
 		wg.Wait()
 
