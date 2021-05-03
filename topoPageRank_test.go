@@ -145,6 +145,44 @@ func BenchmarkSmallGraphE6(b *testing.B) {
 	}
 }
 
+func BenchmarkSmallGraphPullSerialE6(b *testing.B) {
+	edgeFileName := "./example"
+	nodeFileName := "./examplePageNum"
+	enableLog = false
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-6
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRankPullSerial(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
+
+func BenchmarkSmallGraphSerialE6(b *testing.B) {
+	edgeFileName := "./example"
+	nodeFileName := "./examplePageNum"
+	enableLog = false
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	adj_array := makeAdjArray(edges, len(pages))
+
+	alpha := 0.85
+	eps := 10e-6
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		topoPageRankSerial(edges, pages, alpha, eps, adj_array, node_to_index)
+	}
+}
+
+
+
 func BenchmarkLargeGraphSerialE9(b *testing.B) {
 	edgeFileName := "./dirLinks.txt"
 	nodeFileName := "./pageNum.txt"

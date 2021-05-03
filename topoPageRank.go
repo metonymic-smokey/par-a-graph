@@ -5,6 +5,86 @@ import (
 	"sync"
 )
 
+func topoPageRankPullSerial(edges [][2]int, pages [][2]string, alpha float64, eps float64, adj_array map[int][]int, node_to_index map[int]int) []float64 {
+
+	n := len(pages)
+
+	// pagerank vector
+	x := make([]float64, n)
+
+	for i := 0; i < n; i++ {
+		x[i] = 1 / float64(n)
+	}
+
+	//all the nodes in 1 slice
+	var nodes []int
+
+	worklist := make(map[int]bool)
+
+	for _, v := range node_to_index {
+		nodes = append(nodes, v)
+		worklist[v] = true
+	}
+
+	// out degree of each node
+	degree_out := make([]float64, n)
+
+	for i, nodes := range adj_array {
+		degree_out[i] = float64(len(nodes))
+	}
+
+	t := adj_array
+	// node -> list of nodes connecting it
+	s := make(map[int][]int)
+
+	for node := range adj_array {
+		out_neighbours := adj_array[node]
+		for _, out_node := range out_neighbours {
+			if _, ok := s[out_node]; !ok {
+				s[out_node] = make([]int, 0)
+			}
+			s[out_node] = append(s[out_node], node)
+		}
+	}
+
+	var worklist_idx int
+
+	for len(worklist) > 0 && worklist_idx < len(nodes){
+        v := nodes[worklist_idx]
+		delete(worklist, nodes[worklist_idx])
+        worklist_idx+=1
+		sum_value := 0.0
+		if _, ok := s[v]; ok {
+			for _, w := range s[v] {
+				sum_value += x[w] / degree_out[w]
+			}
+		}
+
+		tmp := alpha*sum_value + (1-alpha)/float64(len(nodes))
+
+		if math.Abs(tmp-x[v]) > eps {
+			x[v] = tmp
+			if _, ok := t[v]; ok {
+				for _, w := range t[v] {
+					worklist[w] = true
+				}
+			}
+		}
+	}
+
+	norm := 0.0
+	for _, v := range x {
+		norm += v
+	}
+
+	for i := range x {
+		x[i] /= norm
+	}
+
+	return x
+
+}
+
 func topoPageRankSerial(edges [][2]int, pages [][2]string, alpha float64, eps float64, adj_array map[int][]int, node_to_index map[int]int) []float64 {
 
 	n := len(pages)
@@ -181,7 +261,6 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 			}
 		}(i, mySlice)
 	}
-
 
 	leak = 0.0
 	for _, v := range nodes {
