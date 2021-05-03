@@ -142,10 +142,11 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 	numNodes := float64(len(nodes))
 	alphaTerm := (1 - alpha) / (numNodes)
 
-	numParallel := 8
+	numParallel := 16
 	ch := make(chan struct{})
 	var wg sync.WaitGroup
 	var leak float64
+	leaks := make([]float64, numParallel)
 
 	// new idea
 	// partition total nodes
@@ -160,35 +161,38 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 			mySlice = nodes[blockSize*i : blockSize*(i+1)]
 		}
 
-		go func(thisIsMySlice []int) {
+		go func(parIndex int, thisIsMySlice []int) {
 			for {
 				<-ch
 				for _, v := range thisIsMySlice {
-					tmp := x[v]
 					sumValue := 0.0
-					if _, ok := s[v]; ok {
+					if len(s[v]) == 0 {
+						leaks[parIndex] += x[v]
+					} else {
 						for _, w := range s[v] {
+							// could improve cache locality here using GAS, PCPM
 							sumValue += x[w] / degree_out[w]
 						}
 					}
 					new_x[v] = alphaTerm + alpha*sumValue + leak/numNodes
-					delta[v] = math.Abs(new_x[v] - tmp)
+					delta[v] = math.Abs(new_x[v] - x[v])
 				}
 				wg.Done()
 			}
-		}(mySlice)
+		}(i, mySlice)
+	}
+
+
+	for _, v := range nodes {
+		if len(s[v]) == 0 { //dangling nodes
+			leak += x[v]
+		}
 	}
 
 	for {
 
 		deltaSum := 0.0
 		leak = 0.0
-
-		for _, v := range nodes {
-			if len(s[v]) == 0 { //dangling nodes
-				leak += x[v]
-			}
-		}
 
 		leak *= alpha
 
@@ -198,6 +202,15 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 		}
 		wg.Wait()
 
+		leak = 0
+		for i := 0; i < numParallel; i++ {
+			leak += leaks[i]
+			leaks[i] = 0.0
+		}
+
+		// potential speedup
+		//  - let each partition calculate deltaSum for itself
+		//  - then add each of the numParallel deltaSums
 		for i, newVal := range new_x {
 			x[i] = newVal
 			deltaSum += delta[i]
