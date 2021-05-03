@@ -62,7 +62,8 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 		observed[node] = pageRank[index]
 	}
 
-    threshold := 10e-7
+	threshold := 10e-7
+	thresholdSerialParallel := 10e-9
 
 	for node := range node_to_index {
 		diff := math.Abs(observed[node] - expected[node])
@@ -76,7 +77,7 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 		}
 
 		diff = math.Abs(observedSerial[node] - observed[node])
-		if diff > threshold {
+		if diff > thresholdSerialParallel {
 			t.Errorf("Serial vs Parallel: Page rank not matching for node %d; parallel: %e, serial: %e", node, observed[node], observedSerial[node])
 		}
 	}
@@ -252,4 +253,3 @@ func BenchmarkSmallGraphE11(b *testing.B) {
 		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
 	}
 }
-
