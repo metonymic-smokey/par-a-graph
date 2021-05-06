@@ -13,17 +13,18 @@ func topoPageRankPullSerial(edges [][2]int, pages [][2]string, alpha float64, ep
 	x := make([]float64, n)
 
 	for i := 0; i < n; i++ {
-		x[i] = 1 / float64(n)
+		x[i] = 1/float64(n)
 	}
 
 	//all the nodes in 1 slice
 	var nodes []int
 
-	worklist := make(map[int]bool)
+	//worklist := make(map[int]bool)
+	worklist := make(chan int, 100)
 
 	for _, v := range node_to_index {
 		nodes = append(nodes, v)
-		worklist[v] = true
+		worklist <- v
 	}
 
 	// out degree of each node
@@ -47,30 +48,49 @@ func topoPageRankPullSerial(edges [][2]int, pages [][2]string, alpha float64, ep
 		}
 	}
 
-	var worklist_idx int
+	vis := make(map[int]bool)
+	var flag int
 
-	for len(worklist) > 0 && worklist_idx < len(nodes){
-        v := nodes[worklist_idx]
-		delete(worklist, nodes[worklist_idx])
-        worklist_idx+=1
-		sum_value := 0.0
-		if _, ok := s[v]; ok {
-			for _, w := range s[v] {
-				sum_value += x[w] / degree_out[w]
-			}
-		}
+	for {
 
-		tmp := alpha*sum_value + (1-alpha)/float64(len(nodes))
-
-		if math.Abs(tmp-x[v]) > eps {
-			x[v] = tmp
-			if _, ok := t[v]; ok {
-				for _, w := range t[v] {
-					worklist[w] = true
+		select {
+		case worklist_idx := <-worklist:
+			flag = 1
+			v := worklist_idx
+			vis[v] = true
+			sum_value := 0.0
+			if _, ok := s[v]; ok {
+				for _, w := range s[v] {
+					sum_value += x[w] / degree_out[w]
 				}
 			}
+
+			tmp := alpha*sum_value + (1-alpha)/float64(len(nodes))
+
+			if math.Abs(tmp-x[v]) > eps {
+			    x[v] = tmp
+                if _, ok := t[v]; ok {
+					for _, w := range t[v] {
+                        if ok := vis[v]; !ok {
+							worklist <- w
+						}
+					}
+				}
+			}
+
+
+		default: //when nothing left in worklist
+			flag = -1
+
 		}
+
+		if flag == -1 {
+			break
+		}
+
 	}
+
+	close(worklist)
 
 	norm := 0.0
 	for _, v := range x {
