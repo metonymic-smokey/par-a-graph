@@ -184,6 +184,7 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 
 	// wait for initialization to complete
 	wg.Wait()
+
 	leak = 0.0
 	for v := 0; v < n; v++ {
 		if len(s[v]) == 0 { //dangling nodes
@@ -211,12 +212,10 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 		}
 		leak *= alpha
 
-		// potential speedup
-		//  - let each partition calculate deltaSum for itself
-		//  - then add each of the numParallel deltaSums
-		for i, newVal := range new_x {
-			x[i] = newVal
-		}
+		// swap x and new_x instead of replacing values
+		temp := x
+		x = new_x
+		new_x = temp
 
 		if deltaSum < eps {
 			break
