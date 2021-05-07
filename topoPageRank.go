@@ -112,7 +112,6 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 	var leak float64
 	leaks := make([]float64, numParallel)
 
-	delta := make([]float64, n)
 	numNodes := float64(n)
 	alphaTerm := (1 - alpha) / (numNodes)
 
@@ -137,6 +136,9 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 	// partition total nodes
 	// give set number of nodes to each goroutine
 	blockSize := n / numParallel
+
+	// store deltaSum of each partition separately
+	deltaSums := make([]float64, numParallel)
 
 	// to wait for initialization
 	wg.Add(numParallel);
@@ -173,7 +175,7 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 						}
 					}
 					new_x[v] = alphaTerm + alpha*sumValue + leak/numNodes
-					delta[v] = math.Abs(new_x[v] - x[v])
+					deltaSums[parIndex] += math.Abs(new_x[v] - x[v])
 				}
 				wg.Done()
 			}
@@ -203,6 +205,9 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 		for i := 0; i < numParallel; i++ {
 			leak += leaks[i]
 			leaks[i] = 0.0
+
+			deltaSum += deltaSums[i]
+			deltaSums[i] = 0.0
 		}
 		leak *= alpha
 
@@ -211,7 +216,6 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 		//  - then add each of the numParallel deltaSums
 		for i, newVal := range new_x {
 			x[i] = newVal
-			deltaSum += delta[i]
 		}
 
 		if deltaSum < eps {
