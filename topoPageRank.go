@@ -107,7 +107,9 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 	new_x := make([]float64, n)
 
 	numParallel := 16
-	ch := make(chan struct{})
+	if n < numParallel {
+		numParallel = n
+	}
 	var wg sync.WaitGroup
 	var leak float64
 	leaks := make([]float64, numParallel)
@@ -140,9 +142,13 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 	// store deltaSum of each partition separately
 	deltaSums := make([]float64, numParallel)
 
+	// channels go brr
+	signallers := make([]chan struct{}, numParallel)
+
 	// to wait for initialization
 	wg.Add(numParallel);
 	for i := 0; i < numParallel; i++ {
+		signallers[i] = make(chan struct{})
 
 		var sliceStart int = blockSize * i
 		var sliceEnd int
@@ -163,7 +169,7 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 			wg.Done()
 
 			for {
-				<-ch
+				<-signallers[parIndex]
 				for v := sliceStart; v < sliceEnd; v++ {
 					sumValue := 0.0
 					if len(s[v]) == 0 {
@@ -198,7 +204,7 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 
 		wg.Add(numParallel)
 		for i := 0; i < numParallel; i++ {
-			ch <- struct{}{}
+			signallers[i] <- struct{}{}
 		}
 		wg.Wait()
 

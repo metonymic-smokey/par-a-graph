@@ -63,7 +63,7 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 	}
 
 	threshold := 10e-7
-	thresholdSerialParallel := 10e-9
+	thresholdSerialParallel := 10e-7
 
 	for node := range node_to_index {
 		diff := math.Abs(observed[node] - expected[node])
