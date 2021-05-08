@@ -11,8 +11,8 @@ func BenchmarkQuoraGraphE6(b *testing.B) {
 	nodeFileName := "./quora_nodes.txt"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-6
@@ -20,7 +20,7 @@ func BenchmarkQuoraGraphE6(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -29,8 +29,8 @@ func BenchmarkQuoraGraphE9(b *testing.B) {
 	nodeFileName := "./quora_nodes.txt"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-9
@@ -38,7 +38,7 @@ func BenchmarkQuoraGraphE9(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -47,8 +47,8 @@ func BenchmarkQuoraGraphE11(b *testing.B) {
 	nodeFileName := "./quora_nodes.txt"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-11
@@ -56,7 +56,7 @@ func BenchmarkQuoraGraphE11(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 

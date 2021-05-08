@@ -81,10 +81,13 @@ func topoPageRankSerial(
 }
 
 func topoPageRank(
-	edges [][2]int, pages [][2]string, alpha float64, eps float64, adj_array map[int][]int, node_to_index map[int]int) []float64 {
+	vertexArray []int,
+	edgeArray []int,
+	outDegrees []int,
+	alpha float64,
+	eps float64) []float64 {
 
-	n := len(pages)
-	// e := len(edges)
+	n := len(vertexArray) - 1
 
 	// pagerank vector
 	x := make([]float64, n)
@@ -101,23 +104,6 @@ func topoPageRank(
 	numNodes := float64(n)
 	alphaTerm := (1 - alpha) / (numNodes)
 
-	// out degree of each node
-	degree_out := make([]float64, n)
-
-	//t := adj_array
-	// node -> list of nodes connecting it
-	s := make(map[int][]int)
-
-	for node := range adj_array {
-		out_neighbours := adj_array[node]
-		for _, out_node := range out_neighbours {
-			if _, ok := s[out_node]; !ok {
-				s[out_node] = make([]int, 0)
-			}
-			s[out_node] = append(s[out_node], node)
-		}
-	}
-
 	// new idea
 	// partition total nodes
 	// give set number of nodes to each goroutine
@@ -131,6 +117,7 @@ func topoPageRank(
 
 	// to wait for initialization
 	wg.Add(numParallel)
+
 	for i := 0; i < numParallel; i++ {
 		signallers[i] = make(chan struct{})
 
@@ -145,10 +132,8 @@ func topoPageRank(
 
 		go func(parIndex int, sliceStart int, sliceEnd int) {
 			// initialize pageranks
-			// initialize out degree
 			for v := sliceStart; v < sliceEnd; v++ {
 				x[v] = 1 / float64(n)
-				degree_out[v] = float64(len(adj_array[v]))
 			}
 			wg.Done()
 
@@ -156,13 +141,12 @@ func topoPageRank(
 				<-signallers[parIndex]
 				for v := sliceStart; v < sliceEnd; v++ {
 					sumValue := 0.0
-					if len(s[v]) == 0 {
+					if outDegrees[v] == 0 {
 						leaks[parIndex] += x[v]
-					} else {
-						for _, w := range s[v] {
-							// could improve cache locality here using GAS, PCPM
-							sumValue += x[w] / degree_out[w]
-						}
+					}
+					for w := vertexArray[v]; w < vertexArray[v+1]; w++ {
+						// could improve cache locality here using GAS, PCPM
+						sumValue += x[edgeArray[w]] / float64(outDegrees[edgeArray[w]])
 					}
 					new_x[v] = alphaTerm + alpha*sumValue + leak/numNodes
 					deltaSums[parIndex] += math.Abs(new_x[v] - x[v])
@@ -177,7 +161,7 @@ func topoPageRank(
 
 	leak = 0.0
 	for v := 0; v < n; v++ {
-		if len(s[v]) == 0 { //dangling nodes
+		if outDegrees[v] == 0 { //dangling nodes
 			leak += x[v]
 		}
 	}

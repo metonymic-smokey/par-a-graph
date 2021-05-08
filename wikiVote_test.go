@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func TestWikiVoteGraph(t *testing.T) {
-	testHelperTopoPageRank(t, "./wiki-vote-edges.txt", "./wiki-vote-nodes.txt", 0.85, 0.000001)
+	testHelperTopoPageRank(t, "./wiki-vote-edges.txt", "./wiki-vote-nodes.txt", 0.85, 10e-6)
 }
 
 func BenchmarkWikiVoteGraphE6(b *testing.B) {
@@ -11,8 +11,8 @@ func BenchmarkWikiVoteGraphE6(b *testing.B) {
 	nodeFileName := "./wiki-vote-nodes.txt"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-6
@@ -20,7 +20,7 @@ func BenchmarkWikiVoteGraphE6(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -29,8 +29,8 @@ func BenchmarkWikiVoteGraphE9(b *testing.B) {
 	nodeFileName := "./wiki-vote-nodes.txt"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-9
@@ -38,7 +38,7 @@ func BenchmarkWikiVoteGraphE9(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -47,8 +47,8 @@ func BenchmarkWikiVoteGraphE11(b *testing.B) {
 	nodeFileName := "./wiki-vote-nodes.txt"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-11
@@ -56,7 +56,7 @@ func BenchmarkWikiVoteGraphE11(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 

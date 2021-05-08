@@ -50,7 +50,6 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 	})
 
 	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
 	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	pageRankSerial := topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
@@ -58,7 +57,7 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 		observedSerial[node] = pageRankSerial[index]
 	}
 
-	pageRank := topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+	pageRank := topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	for node, index := range node_to_index {
 		observed[node] = pageRank[index]
 	}
@@ -115,8 +114,8 @@ func BenchmarkLargeGraphE6(b *testing.B) {
 	nodeFileName := "./pageNum.txt"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-6
@@ -124,7 +123,7 @@ func BenchmarkLargeGraphE6(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -133,8 +132,8 @@ func BenchmarkSmallGraphE6(b *testing.B) {
 	nodeFileName := "./examplePageNum"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-6
@@ -142,7 +141,7 @@ func BenchmarkSmallGraphE6(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -170,8 +169,8 @@ func BenchmarkLargeGraphE9(b *testing.B) {
 
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-9
@@ -179,7 +178,7 @@ func BenchmarkLargeGraphE9(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -188,8 +187,8 @@ func BenchmarkSmallGraphE9(b *testing.B) {
 	nodeFileName := "./examplePageNum"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-9
@@ -197,7 +196,7 @@ func BenchmarkSmallGraphE9(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -224,8 +223,8 @@ func BenchmarkLargeGraphE11(b *testing.B) {
 	nodeFileName := "./pageNum.txt"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-11
@@ -233,7 +232,7 @@ func BenchmarkLargeGraphE11(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -242,8 +241,8 @@ func BenchmarkSmallGraphE11(b *testing.B) {
 	nodeFileName := "./examplePageNum"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-11
@@ -251,6 +250,6 @@ func BenchmarkSmallGraphE11(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
