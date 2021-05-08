@@ -5,10 +5,14 @@ import (
 	"sync"
 )
 
-func topoPageRankSerial(edges [][2]int, pages [][2]string, alpha float64, eps float64, adj_array map[int][]int, node_to_index map[int]int) []float64 {
+func topoPageRankSerial(
+	vertexArray []int,
+	edgeArray []int,
+	outDegrees []int,
+	alpha float64,
+	eps float64) []float64 {
 
-	n := len(pages)
-	//e := len(edges)
+	n := len(vertexArray) - 1
 
 	// pagerank vector
 	x := make([]float64, n)
@@ -20,42 +24,24 @@ func topoPageRankSerial(edges [][2]int, pages [][2]string, alpha float64, eps fl
 
 	//all the nodes in 1 slice
 	var nodes []int
-
-	for _, v := range node_to_index {
-		nodes = append(nodes, v)
-	}
-
-	// out degree of each node
-	degree_out := make([]float64, n)
-
-	for i, nodes := range adj_array {
-		degree_out[i] = float64(len(nodes))
-	}
-
-	//t := adj_array
-	// node -> list of nodes connecting it
-	s := make(map[int][]int)
-
-	for node := range adj_array {
-		out_neighbours := adj_array[node]
-		for _, out_node := range out_neighbours {
-			if _, ok := s[out_node]; !ok {
-				s[out_node] = make([]int, 0)
-			}
-			s[out_node] = append(s[out_node], node)
-		}
+	for i := 0; i < n; i++ {
+		nodes = append(nodes, i)
 	}
 
 	delta := make([]float64, n)
 
+	iters := 0
+
 	for true {
+		iters++
 
 		deltaSum := 0.0
 		var leak float64
 
 		for _, v := range nodes {
-			if len(s[v]) == 0 { //dangling nodes
+			if outDegrees[v] == 0 { //dangling nodes
 				leak += x[v]
+				// log.Println("found leak", x[v], outDegrees[v], v)
 			}
 		}
 
@@ -64,13 +50,10 @@ func topoPageRankSerial(edges [][2]int, pages [][2]string, alpha float64, eps fl
 		for _, v := range nodes {
 			tmp := x[v]
 			sum_value := 0.0
-			if _, ok := s[v]; ok {
-
-				for _, w := range s[v] {
-					sum_value += x[w] / degree_out[w]
-				}
+			for w := vertexArray[v]; w < vertexArray[v+1]; w++ {
+				sum_value += x[edgeArray[w]] / float64(outDegrees[edgeArray[w]])
 			}
-			new_x[v] = (1-alpha)/float64(len(nodes)) + alpha*sum_value + leak/float64(len(nodes))
+			new_x[v] = (1-alpha)/float64(n) + alpha*sum_value + leak/float64(n)
 			delta[v] = math.Abs(new_x[v] - tmp)
 			deltaSum += delta[v]
 		}
@@ -97,7 +80,8 @@ func topoPageRankSerial(edges [][2]int, pages [][2]string, alpha float64, eps fl
 
 }
 
-func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64, adj_array map[int][]int, node_to_index map[int]int) []float64 {
+func topoPageRank(
+	edges [][2]int, pages [][2]string, alpha float64, eps float64, adj_array map[int][]int, node_to_index map[int]int) []float64 {
 
 	n := len(pages)
 	// e := len(edges)
@@ -146,7 +130,7 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 	signallers := make([]chan struct{}, numParallel)
 
 	// to wait for initialization
-	wg.Add(numParallel);
+	wg.Add(numParallel)
 	for i := 0; i < numParallel; i++ {
 		signallers[i] = make(chan struct{})
 
@@ -199,7 +183,11 @@ func topoPageRank(edges [][2]int, pages [][2]string, alpha float64, eps float64,
 	}
 	leak *= alpha
 
+	iters := 0
+
 	for {
+		iters++
+
 		deltaSum := 0.0
 
 		wg.Add(numParallel)

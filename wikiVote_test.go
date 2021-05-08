@@ -65,8 +65,8 @@ func BenchmarkWikiVoteGraphSerialE6(b *testing.B) {
 	nodeFileName := "./wiki-vote-nodes.txt"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-6
@@ -74,7 +74,7 @@ func BenchmarkWikiVoteGraphSerialE6(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRankSerial(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -83,8 +83,8 @@ func BenchmarkWikiVoteGraphSerialE9(b *testing.B) {
 	nodeFileName := "./wiki-vote-nodes.txt"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-9
@@ -92,7 +92,7 @@ func BenchmarkWikiVoteGraphSerialE9(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRankSerial(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -101,8 +101,8 @@ func BenchmarkWikiVoteGraphSerialE11(b *testing.B) {
 	nodeFileName := "./wiki-vote-nodes.txt"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-11
@@ -110,6 +110,6 @@ func BenchmarkWikiVoteGraphSerialE11(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRankSerial(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }

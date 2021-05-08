@@ -51,8 +51,9 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 
 	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
 	adj_array := makeAdjArray(edges, len(pages))
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
-	pageRankSerial := topoPageRankSerial(edges, pages, alpha, eps, adj_array, node_to_index)
+	pageRankSerial := topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	for node, index := range node_to_index {
 		observedSerial[node] = pageRankSerial[index]
 	}
@@ -96,8 +97,8 @@ func BenchmarkLargeGraphSerialE6(b *testing.B) {
 	nodeFileName := "./pageNum.txt"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-6
@@ -105,7 +106,7 @@ func BenchmarkLargeGraphSerialE6(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRankSerial(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -150,8 +151,8 @@ func BenchmarkLargeGraphSerialE9(b *testing.B) {
 	nodeFileName := "./pageNum.txt"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-9
@@ -159,7 +160,7 @@ func BenchmarkLargeGraphSerialE9(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRankSerial(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -205,8 +206,8 @@ func BenchmarkLargeGraphSerialE11(b *testing.B) {
 	nodeFileName := "./pageNum.txt"
 	enableLog = false
 
-	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
-	adj_array := makeAdjArray(edges, len(pages))
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
 	alpha := 0.85
 	eps := 10e-11
@@ -214,7 +215,7 @@ func BenchmarkLargeGraphSerialE11(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRankSerial(edges, pages, alpha, eps, adj_array, node_to_index)
+		topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 

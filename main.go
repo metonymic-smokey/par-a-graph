@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sort"
 )
 
 var enableLog = true
@@ -104,6 +105,68 @@ func makeAdjArray(edges [][2]int, n int) map[int][]int {
 
 	return adj_array
 
+}
+
+// converts the edge list to CSR format with
+// a vertexArray consisting of cumulative in degrees
+// an edgeArray consisting of the in-vertices
+func makeCSR(edges [][2]int, n int) (vertexArray, edgeArray,  outDegrees []int) {
+	// stores indegrees of all vertices
+	inDegrees := make([]int, n)
+
+	// stores outdegrees of all vertices
+	// needed in pagerank computation
+	outDegrees = make([]int, n)
+
+	// vertex array of CSR format
+	vertexArray = make([]int, n+1)
+	// edge or destination array
+	edgeArray = make([]int, len(edges))
+
+	// populate indegrees and outDegrees
+	//  - increment inDegree of the destination vertex
+	//  - increment out degree of the source vertex
+	for i := 0; i < len(edges); i++ {
+		inDegrees[edges[i][1]]++
+		outDegrees[edges[i][0]]++
+	}
+
+	// populate vertex  array
+	// with cumulative indegree
+	//   previous value + indegree of previous node
+	// first value is always 0
+	for i := 1; i <= n; i++ {
+		vertexArray[i] = vertexArray[i - 1] + inDegrees[i - 1]
+	}
+
+	// we will reuse inDegrees to store number of in-vertices
+	//  currently processed for that node
+	// this is used to index into edgeArray
+	for i := 0; i < n; i++ {
+		inDegrees[i] = 0
+	}
+
+	// populate edge array
+	for i := 0; i < len(edges); i++ {
+		// since we need incoming vertices, we store
+		//   destination to source mapping
+		from := edges[i][1]
+		to := edges[i][0]
+		edgeArray[vertexArray[from] + inDegrees[from]] = to
+
+		inDegrees[from]++
+	}
+
+	// the vertices in edgeArray are currently randomly ordered
+	// let's sort them to reduce randomm accesses
+	for i := 0; i < n; i++ {
+		// if at least 2 edges exist, sort them
+		if (vertexArray[i+1] > vertexArray[i]+1) {
+			sort.Ints(edgeArray[vertexArray[i]: vertexArray[i+1]])
+		}
+	}
+
+	return
 }
 
 func max(arr []float64) float64 {
