@@ -3,6 +3,7 @@ package main
 import (
 	"math"
 	"sync"
+	// "log"
 )
 
 func topoPageRankSerial(
@@ -61,11 +62,14 @@ func topoPageRankSerial(
 		for i, new_val := range new_x {
 			x[i] = new_val
 		}
+		// log.Println(deltaSum)
 
 		if deltaSum < eps {
 			break
 		}
 	}
+
+	// log.Println("serial iters: ", iters)
 
 	norm := 0.0
 	for _, v := range x {
@@ -129,11 +133,12 @@ func topoPageRank(
 		} else {
 			sliceEnd = blockSize * (i + 1)
 		}
+		// log.Println("allocating block ", sliceStart, " ", sliceEnd)
 
 		go func(parIndex int, sliceStart int, sliceEnd int) {
 			// initialize pageranks
 			for v := sliceStart; v < sliceEnd; v++ {
-				x[v] = 1 / float64(n)
+				x[v] = 1 / numNodes
 			}
 			wg.Done()
 
@@ -141,15 +146,15 @@ func topoPageRank(
 				<-signallers[parIndex]
 				for v := sliceStart; v < sliceEnd; v++ {
 					sumValue := 0.0
-					if outDegrees[v] == 0 {
-						leaks[parIndex] += x[v]
-					}
 					for w := vertexArray[v]; w < vertexArray[v+1]; w++ {
 						// could improve cache locality here using GAS, PCPM
 						sumValue += x[edgeArray[w]] / float64(outDegrees[edgeArray[w]])
 					}
 					new_x[v] = alphaTerm + alpha*sumValue + leak/numNodes
 					deltaSums[parIndex] += math.Abs(new_x[v] - x[v])
+					if outDegrees[v] == 0 {
+						leaks[parIndex] += new_x[v]
+					}
 				}
 				wg.Done()
 			}
@@ -173,6 +178,7 @@ func topoPageRank(
 		iters++
 
 		deltaSum := 0.0
+		// log.Println("leak", leak)
 
 		wg.Add(numParallel)
 		for i := 0; i < numParallel; i++ {
@@ -180,7 +186,7 @@ func topoPageRank(
 		}
 		wg.Wait()
 
-		leak = 0
+		leak = 0.0
 		for i := 0; i < numParallel; i++ {
 			leak += leaks[i]
 			leaks[i] = 0.0
@@ -194,11 +200,14 @@ func topoPageRank(
 		temp := x
 		x = new_x
 		new_x = temp
+		// log.Println(deltaSum)
 
 		if deltaSum < eps {
 			break
 		}
 	}
+
+	// log.Println("parallel iters: ", iters)
 
 	norm := 0.0
 	for _, v := range x {
