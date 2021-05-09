@@ -11,7 +11,7 @@ func topoPageRankSerial(
 	edgeArray []int,
 	outDegrees []int,
 	alpha float64,
-	eps float64) []float64 {
+	eps float64) ([]float64, int) {
 
 	n := len(vertexArray) - 1
 
@@ -80,7 +80,7 @@ func topoPageRankSerial(
 		x[i] /= norm
 	}
 
-	return x
+	return x, iters
 
 }
 
@@ -89,7 +89,7 @@ func topoPageRank(
 	edgeArray []int,
 	outDegrees []int,
 	alpha float64,
-	eps float64) []float64 {
+	eps float64) ([]float64, int) {
 
 	n := len(vertexArray) - 1
 
@@ -218,6 +218,6 @@ func topoPageRank(
 		x[i] /= norm
 	}
 
-	return x
+	return x, iters
 
 }

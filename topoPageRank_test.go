@@ -52,12 +52,12 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
 	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
-	pageRankSerial := topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
+	pageRankSerial, itersSerial := topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	for node, index := range node_to_index {
 		observedSerial[node] = pageRankSerial[index]
 	}
 
-	pageRank := topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
+	pageRank, itersPar := topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	for node, index := range node_to_index {
 		observed[node] = pageRank[index]
 	}
@@ -80,6 +80,10 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 		if diff > thresholdSerialParallel {
 			t.Errorf("Serial vs Parallel: Page rank not matching for node %d; parallel: %e, serial: %e", node, observed[node], observedSerial[node])
 		}
+	}
+
+	if itersSerial != itersPar {
+		t.Errorf("Number of iterations in serial and parallel do not match. Serial: %v, Parallel: %v", itersSerial, itersPar)
 	}
 }
 
