@@ -4,9 +4,10 @@ import (
 	"math"
 	"sync"
 	// "log"
+	// "runtime"
 )
 
-func topoPageRankSerial(
+func pageRankSerial(
 	vertexArray []int,
 	edgeArray []int,
 	outDegrees []int,
@@ -84,7 +85,7 @@ func topoPageRankSerial(
 
 }
 
-func topoPageRank(
+func pageRank(
 	vertexArray []int,
 	edgeArray []int,
 	outDegrees []int,
@@ -142,8 +143,14 @@ func topoPageRank(
 			}
 			wg.Done()
 
+			// runtime.LockOSThread()
 			for {
 				<-signallers[parIndex]
+				// _, ok := <-signallers[parIndex]
+				// if !ok {
+				// 	// runtime.UnlockOSThread()
+				// 	return
+				// }
 				for v := sliceStart; v < sliceEnd; v++ {
 					sumValue := 0.0
 					for w := vertexArray[v]; w < vertexArray[v+1]; w++ {
@@ -208,6 +215,10 @@ func topoPageRank(
 	}
 
 	// log.Println("parallel iters: ", iters)
+
+	// for i := 0; i < numParallel; i++ {
+	// 	close(signallers[i])
+	// }
 
 	norm := 0.0
 	for _, v := range x {

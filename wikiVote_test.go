@@ -20,7 +20,7 @@ func BenchmarkWikiVoteGraphE6(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -38,7 +38,7 @@ func BenchmarkWikiVoteGraphE9(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -56,7 +56,7 @@ func BenchmarkWikiVoteGraphE11(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -74,7 +74,7 @@ func BenchmarkWikiVoteGraphSerialE6(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -92,7 +92,7 @@ func BenchmarkWikiVoteGraphSerialE9(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -110,6 +110,6 @@ func BenchmarkWikiVoteGraphSerialE11(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }

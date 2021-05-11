@@ -52,12 +52,12 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
 	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
 
-	pageRankSerial, itersSerial := topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
+	pageRankSerial, itersSerial := pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	for node, index := range node_to_index {
 		observedSerial[node] = pageRankSerial[index]
 	}
 
-	pageRank, itersPar := topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
+	pageRank, itersPar := pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	for node, index := range node_to_index {
 		observed[node] = pageRank[index]
 	}
@@ -109,7 +109,7 @@ func BenchmarkLargeGraphSerialE6(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -127,7 +127,7 @@ func BenchmarkLargeGraphE6(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -145,7 +145,7 @@ func BenchmarkSmallGraphE6(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -163,7 +163,7 @@ func BenchmarkLargeGraphSerialE9(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -182,7 +182,7 @@ func BenchmarkLargeGraphE9(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -200,7 +200,7 @@ func BenchmarkSmallGraphE9(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -218,7 +218,7 @@ func BenchmarkLargeGraphSerialE11(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -236,7 +236,7 @@ func BenchmarkLargeGraphE11(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
 
@@ -254,6 +254,6 @@ func BenchmarkSmallGraphE11(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		topoPageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
+		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
 	}
 }
