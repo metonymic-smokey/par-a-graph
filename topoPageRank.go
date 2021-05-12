@@ -1,11 +1,51 @@
 package main
 
+/*
+   double *pageRankCuda(int *vertexArray, int vertexArray_size, int *edgeArray,
+                     int edgeArray_size, int *outDegrees, int outDegree_size,
+                     double alpha, double eps);
+   #cgo LDFLAGS: -L. -lpagerank
+*/
+import "C"
 import (
 	"math"
 	"sync"
 	// "log"
 	// "runtime"
 )
+
+func pageRankGPU(
+	vertexArray []int,
+	edgeArray []int,
+	outDegrees []int,
+	alpha float64,
+	eps float64) {
+
+	var vertexArray_size C.int
+	var edgeArray_size C.int
+	var outDegrees_size C.int
+
+	vertexArray_size = C.int(len(vertexArray))
+	edgeArray_size = C.int(len(edgeArray))
+	outDegrees_size = C.int(len(outDegrees))
+
+	var _alpha C.double
+	var _eps C.double
+	_vertexArray := make([]C.int, vertexArray_size)
+	_edgeArray := make([]C.int, edgeArray_size)
+	_outDegrees := make([]C.int, outDegrees_size)
+	for i, v := range vertexArray {
+		_vertexArray[i] = C.int(v)
+	}
+	for i, v := range edgeArray {
+		_edgeArray[i] = C.int(v)
+	}
+	for i, v := range outDegrees {
+		_outDegrees[i] = C.int(v)
+	}
+
+	C.pageRankCuda(&_vertexArray[0], vertexArray_size, &_edgeArray[0], edgeArray_size, &_outDegrees[0], outDegrees_size, C.double(alpha), C.double(eps))
+}
 
 func pageRankSerial(
 	vertexArray []int,
@@ -34,7 +74,7 @@ func pageRankSerial(
 
 	iters := 0
 
-	for true {
+	for {
 		iters++
 
 		deltaSum := 0.0
