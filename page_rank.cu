@@ -2,8 +2,10 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <cuda.h>
 
-__global__ void _pagerankCuda(int *nodes, double *pagerank_vector,
+__global__
+void prGPU(int *nodes, double *pagerank_vector,
                               double *new_pagerank, int *vertexArray,
                               int *edgeArray, int *outDegrees, double alpha,
                               double *deltaSum, int n, double leak) {
@@ -19,15 +21,19 @@ __global__ void _pagerankCuda(int *nodes, double *pagerank_vector,
     }
     new_pagerank[i] =
         (1 - alpha) / double(n) + alpha * sumVal + leak / double(n);
+    /* printf("New pagerank = %lf\n",new_pagerank[i]); */
     double delta = abs(new_pagerank[i] - temp);
     atomicAdd(deltaSum, delta);
   }
 }
 
 extern "C" {
-pageRankCuda(int *vertexArray, int vertexArray_size, int *edgeArray,
-             int edgeArray_size, int *outDegrees, int outDegree_size,
-             double alpha, double eps) {
+void pageRankCuda(int *vertexArray, int vertexArray_size, int *edgeArray,
+                  int edgeArray_size, int *outDegrees, int outDegree_size,
+                  double alpha, double eps) {
+
+  FILE* fptr;
+  fptr = fopen("pr_cuda_res.txt", "w");
   int n = vertexArray_size - 1;
   double *res = (double *)malloc((n + 1) * sizeof(double));
   double *pagerank_vector = (double *)malloc(n * sizeof(double));
@@ -42,6 +48,8 @@ pageRankCuda(int *vertexArray, int vertexArray_size, int *edgeArray,
   for (int i = 0; i < n; i++) {
     nodes[i] = i;
   }
+  printf("YABE\n");
+  printf("Vertex array is = %d\n", vertexArray[3]);
 
   double *delta = (double *)malloc(n * sizeof(double));
   int iters = 0;
@@ -89,14 +97,11 @@ pageRankCuda(int *vertexArray, int vertexArray_size, int *edgeArray,
                cudaMemcpyHostToDevice);
     cudaMemcpy(_new_pagerank, new_pagerank, n * sizeof(double),
                cudaMemcpyHostToDevice);
-    cudaMemcpy(&_deltaSum, &deltaSum, sizeof(double), cudaMemcpyHostToDevice);
-    cudaMemcpy(&_leak, &leak, sizeof(double), cudaMemcpyHostToDevice);
-    cudaMemcpy(&_alpha, &alpha, sizeof(double), cudaMemcpyHostToDevice);
-    cudaMemcpy(&_n, &n, sizeof(int), cudaMemcpyHostToDevice);
-
-    _pagerankCuda<<<1, 256>>>(_nodes, _pagerank_vector, _new_pagerank,
-                              _vertexArray, _edgeArray, _outDegrees, _alpha,
-                              _deltaSum, _n, _leak);
+    cudaMemcpy(_deltaSum, &deltaSum, sizeof(double), cudaMemcpyHostToDevice);
+    
+    prGPU<<<1, 256>>>(_nodes, _pagerank_vector, _new_pagerank,
+                              _vertexArray, _edgeArray, _outDegrees, alpha,
+                              _deltaSum, n, leak);
     cudaDeviceSynchronize();
 
     // memcpy go brrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrrr
@@ -111,11 +116,9 @@ pageRankCuda(int *vertexArray, int vertexArray_size, int *edgeArray,
                cudaMemcpyDeviceToHost);
     cudaMemcpy(new_pagerank, _new_pagerank, n * sizeof(double),
                cudaMemcpyDeviceToHost);
-    cudaMemcpy(&deltaSum, &_deltaSum, sizeof(double), cudaMemcpyDeviceToHost);
-    cudaMemcpy(&leak, &_leak, sizeof(double), cudaMemcpyDeviceToHost);
-    cudaMemcpy(&alpha, &_alpha, sizeof(double), cudaMemcpyDeviceToHost);
-    cudaMemcpy(&n, &_n, sizeof(int), cudaMemcpyDeviceToHost);
-
+    cudaMemcpy(&deltaSum, _deltaSum, sizeof(double), cudaMemcpyDeviceToHost);
+    printf("Vertex = %d\n", vertexArray[3]);
+    printf("Deltasum = %lf\n", deltaSum);
     memcpy(pagerank_vector, new_pagerank, n * sizeof(double));
 
     if (deltaSum < eps) {
@@ -129,10 +132,7 @@ pageRankCuda(int *vertexArray, int vertexArray_size, int *edgeArray,
   cudaFree(_outDegrees);
   cudaFree(_pagerank_vector);
   cudaFree(_new_pagerank);
-  cudaFree(&_deltaSum);
-  cudaFree(&_leak);
-  cudaFree(&_alpha);
-  cudaFree(&_n);
+  cudaFree(_deltaSum);
 
   double norm = 0;
   for (int i = 0; i < n; i++) {
@@ -143,14 +143,13 @@ pageRankCuda(int *vertexArray, int vertexArray_size, int *edgeArray,
     pagerank_vector[i] /= norm;
   }
 
-  printf("Latest pagerank is: \n");
+  fprintf(fptr, "Latest pagerank is:\n");
   for (int i = 0; i < n; i++) {
-    printf("%lf ", pagerank_vector[i]);
+    fprintf(fptr, "%lf\n", new_pagerank[i]);
   }
-}
-}
-
-int main() {
-  printf("BELIEB\n");
-  return 0;
+  printf("ITERATIONS\n");
+  fprintf(fptr, "\nIterations = \n%d\n", iters);
+  fclose(fptr);
+  return;
+ }
 }
