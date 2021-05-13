@@ -57,7 +57,10 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 		observedSerial[node] = pageRankSerial[index]
 	}
 
-	pageRankGPU(vertexArray, edgeArray, outDegrees, alpha, eps)
+	pageRank, _ := pageRankGPU(vertexArray, edgeArray, outDegrees, alpha, eps)
+	for node, index := range node_to_index {
+		observed[node] = pageRank[index]
+	}
 
 	threshold := 10e-7
 	thresholdSerialParallel := 10e-7

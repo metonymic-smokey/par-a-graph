@@ -48,8 +48,6 @@ void pageRankCuda(int *vertexArray, int vertexArray_size, int *edgeArray,
   for (int i = 0; i < n; i++) {
     nodes[i] = i;
   }
-  printf("YABE\n");
-  printf("Vertex array is = %d\n", vertexArray[3]);
 
   double *delta = (double *)malloc(n * sizeof(double));
   int iters = 0;
@@ -117,8 +115,6 @@ void pageRankCuda(int *vertexArray, int vertexArray_size, int *edgeArray,
     cudaMemcpy(new_pagerank, _new_pagerank, n * sizeof(double),
                cudaMemcpyDeviceToHost);
     cudaMemcpy(&deltaSum, _deltaSum, sizeof(double), cudaMemcpyDeviceToHost);
-    printf("Vertex = %d\n", vertexArray[3]);
-    printf("Deltasum = %lf\n", deltaSum);
     memcpy(pagerank_vector, new_pagerank, n * sizeof(double));
 
     if (deltaSum < eps) {
@@ -147,7 +143,6 @@ void pageRankCuda(int *vertexArray, int vertexArray_size, int *edgeArray,
   for (int i = 0; i < n; i++) {
     fprintf(fptr, "%lf\n", new_pagerank[i]);
   }
-  printf("ITERATIONS\n");
   fprintf(fptr, "\nIterations = \n%d\n", iters);
   fclose(fptr);
   return;
