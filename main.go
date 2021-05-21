@@ -4,9 +4,9 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"sort"
 	"strconv"
 	"strings"
-	"sort"
 )
 
 var enableLog = true
@@ -110,7 +110,7 @@ func makeAdjArray(edges [][2]int, n int) map[int][]int {
 // converts the edge list to CSR format with
 // a vertexArray consisting of cumulative in degrees
 // an edgeArray consisting of the in-vertices
-func makeCSR(edges [][2]int, n int) (vertexArray, edgeArray,  outDegrees []int) {
+func makeCSR(edges [][2]int, n int) (vertexArray, edgeArray, outDegrees []int) {
 	// stores indegrees of all vertices
 	inDegrees := make([]int, n)
 
@@ -136,7 +136,7 @@ func makeCSR(edges [][2]int, n int) (vertexArray, edgeArray,  outDegrees []int) 
 	//   previous value + indegree of previous node
 	// first value is always 0
 	for i := 1; i <= n; i++ {
-		vertexArray[i] = vertexArray[i - 1] + inDegrees[i - 1]
+		vertexArray[i] = vertexArray[i-1] + inDegrees[i-1]
 	}
 
 	// we will reuse inDegrees to store number of in-vertices
@@ -152,7 +152,7 @@ func makeCSR(edges [][2]int, n int) (vertexArray, edgeArray,  outDegrees []int) 
 		//   destination to source mapping
 		from := edges[i][1]
 		to := edges[i][0]
-		edgeArray[vertexArray[from] + inDegrees[from]] = to
+		edgeArray[vertexArray[from]+inDegrees[from]] = to
 
 		inDegrees[from]++
 	}
@@ -161,8 +161,8 @@ func makeCSR(edges [][2]int, n int) (vertexArray, edgeArray,  outDegrees []int) 
 	// let's sort them to reduce randomm accesses
 	for i := 0; i < n; i++ {
 		// if at least 2 edges exist, sort them
-		if (vertexArray[i+1] > vertexArray[i]+1) {
-			sort.Ints(edgeArray[vertexArray[i]: vertexArray[i+1]])
+		if vertexArray[i+1] > vertexArray[i]+1 {
+			sort.Ints(edgeArray[vertexArray[i]:vertexArray[i+1]])
 		}
 	}
 
@@ -179,4 +179,45 @@ func max(arr []float64) float64 {
 	}
 
 	return res
+}
+
+func main() {
+	edgeFileName := "example"
+	nodeFileName := "examplePageNum"
+
+	alpha := 0.85
+	eps := 10e-11
+
+	f, err := os.Open(edgeFileName)
+	if err != nil {
+		panic(err)
+	}
+
+	defer f.Close()
+
+	var fileContents []string
+	scanner := bufio.NewScanner(f)
+
+	for scanner.Scan() {
+		fileContents = append(fileContents, scanner.Text())
+	}
+
+	for _, fc := range fileContents {
+		res := strings.Split(fc, ",")
+		if len(res) < 2 {
+			fmt.Println("less than 2 in dirLinks")
+			continue
+		}
+	}
+
+	observed := make(map[int]float64)
+
+	edges, pages, node_to_index := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
+
+	pageRank, _ := pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
+	for node, index := range node_to_index {
+		observed[node] = pageRank[index]
+	}
+
 }
