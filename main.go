@@ -182,7 +182,8 @@ func max(arr []float64) float64 {
 }
 
 func main() {
-	edges, pages, _ := readGraph("wiki-vote-edges.txt", "wiki-vote-nodes.txt")
+	edges, pages, _ := readGraph("./wiki-vote-edges.txt", "./wiki-vote-nodes.txt")
 	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-	pageRankGPU(vertexArray, edgeArray, outDegrees, 0.85, 10e-6)
+	// pageRankCU(vertexArray, edgeArray, outDegrees, 0.85, 10e-6)
+	pageRank(vertexArray, edgeArray, outDegrees, 0.85, 10e-6)
 }
