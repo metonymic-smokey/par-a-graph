@@ -18,6 +18,7 @@ const smallGraphNodeFile = "../datasets/examplePageNum"
 const largeGraphEdgeFile = "../datasets/dirLinks.txt"
 const largeGraphNodeFile = "../datasets/pageNum.txt"
 
+// test helper
 func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName string, alpha float64, eps float64) {
 
 	f, err := os.Open(edgeFileName)
@@ -93,6 +94,40 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 	}
 }
 
+// benchmark helpers
+
+func benchmarkHelperSerial(b *testing.B, edgeFileName string, nodeFileName string, eps float64) {
+	enableLog = false
+
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
+
+	alpha := 0.85
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
+	}
+}
+
+func benchmarkHelperParallel(b *testing.B, edgeFileName string, nodeFileName string, eps float64) {
+	enableLog = false
+
+	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
+	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
+
+	alpha := 0.85
+
+	b.ResetTimer()
+
+	for i := 0; i < b.N; i++ {
+		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
+	}
+}
+
+// tests - small and large
+
 func TestSmallGraph(t *testing.T) {
 	testHelperTopoPageRank(t, smallGraphEdgeFile, smallGraphNodeFile, 0.85, 0.000001)
 }
@@ -101,165 +136,42 @@ func TestLargeGraph(t *testing.T) {
 	testHelperTopoPageRank(t, largeGraphEdgeFile, largeGraphNodeFile, 0.85, 0.000001)
 }
 
+// Large graph - benchmarks
+
 func BenchmarkLargeGraphSerialE6(b *testing.B) {
-	edgeFileName := largeGraphEdgeFile
-	nodeFileName := largeGraphNodeFile
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-6
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperSerial(b, largeGraphEdgeFile, largeGraphNodeFile, 10e-6)
 }
 
 func BenchmarkLargeGraphE6(b *testing.B) {
-	edgeFileName := largeGraphEdgeFile
-	nodeFileName := largeGraphNodeFile
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-6
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
-}
-
-func BenchmarkSmallGraphE6(b *testing.B) {
-	edgeFileName := smallGraphEdgeFile
-	nodeFileName := smallGraphNodeFile
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-6
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperParallel(b, largeGraphEdgeFile, largeGraphNodeFile, 10e-6)
 }
 
 func BenchmarkLargeGraphSerialE9(b *testing.B) {
-	edgeFileName := largeGraphEdgeFile
-	nodeFileName := largeGraphNodeFile
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-9
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
-}
-
-func BenchmarkLargeGraphE9(b *testing.B) {
-	edgeFileName := largeGraphEdgeFile
-	nodeFileName := largeGraphNodeFile
-
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-9
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperSerial(b, largeGraphEdgeFile, largeGraphNodeFile, 10e-9)
 }
 
 func BenchmarkSmallGraphE9(b *testing.B) {
-	edgeFileName := smallGraphEdgeFile
-	nodeFileName := smallGraphNodeFile
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-9
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperParallel(b, smallGraphEdgeFile, smallGraphNodeFile, 10e-9)
 }
 
 func BenchmarkLargeGraphSerialE11(b *testing.B) {
-	edgeFileName := largeGraphEdgeFile
-	nodeFileName := largeGraphNodeFile
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-11
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperSerial(b, largeGraphEdgeFile, largeGraphNodeFile, 10e-11)
 }
 
 func BenchmarkLargeGraphE11(b *testing.B) {
-	edgeFileName := largeGraphEdgeFile
-	nodeFileName := largeGraphNodeFile
-	enableLog = false
+	benchmarkHelperParallel(b, largeGraphEdgeFile, largeGraphNodeFile, 10e-11)
+}
 
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
+// Small graph - benchmarks
 
-	alpha := 0.85
-	eps := 10e-11
+func BenchmarkSmallGraphE6(b *testing.B) {
+	benchmarkHelperParallel(b, smallGraphEdgeFile, smallGraphNodeFile, 10e-6)
+}
 
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+func BenchmarkLargeGraphE9(b *testing.B) {
+	benchmarkHelperParallel(b, largeGraphEdgeFile, largeGraphNodeFile, 10e-9)
 }
 
 func BenchmarkSmallGraphE11(b *testing.B) {
-	edgeFileName := smallGraphEdgeFile
-	nodeFileName := smallGraphNodeFile
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-11
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperParallel(b, smallGraphEdgeFile, smallGraphNodeFile, 10e-11)
 }

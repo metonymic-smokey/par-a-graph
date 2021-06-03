@@ -10,109 +10,25 @@ func TestQuoraGraph(t *testing.T) {
 }
 
 func BenchmarkQuoraGraphE6(b *testing.B) {
-	edgeFileName := quoraEdgeFileName
-	nodeFileName := quoraNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-6
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperParallel(b, quoraEdgeFileName, quoraNodeFileName, 10e-6)
 }
 
 func BenchmarkQuoraGraphE9(b *testing.B) {
-	edgeFileName := quoraEdgeFileName
-	nodeFileName := quoraNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-9
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperParallel(b, quoraEdgeFileName, quoraNodeFileName, 10e-9)
 }
 
 func BenchmarkQuoraGraphE11(b *testing.B) {
-	edgeFileName := quoraEdgeFileName
-	nodeFileName := quoraNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-11
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperParallel(b, quoraEdgeFileName, quoraNodeFileName, 10e-11)
 }
 
 func BenchmarkQuoraGraphSerialE6(b *testing.B) {
-	edgeFileName := quoraEdgeFileName
-	nodeFileName := quoraNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-6
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperSerial(b, quoraEdgeFileName, quoraNodeFileName, 10e-6)
 }
 
 func BenchmarkQuoraGraphSerialE9(b *testing.B) {
-	edgeFileName := quoraEdgeFileName
-	nodeFileName := quoraNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-9
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperSerial(b, quoraEdgeFileName, quoraNodeFileName, 10e-9)
 }
 
 func BenchmarkQuoraGraphSerialE11(b *testing.B) {
-	edgeFileName := quoraEdgeFileName
-	nodeFileName := quoraNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-11
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperSerial(b, quoraEdgeFileName, quoraNodeFileName, 10e-11)
 }

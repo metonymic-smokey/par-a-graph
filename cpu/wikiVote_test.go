@@ -10,109 +10,25 @@ func TestWikiVoteGraph(t *testing.T) {
 }
 
 func BenchmarkWikiVoteGraphE6(b *testing.B) {
-	edgeFileName := wikiEdgeFileName
-	nodeFileName := wikiNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-6
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperParallel(b, wikiEdgeFileName, wikiNodeFileName, 10e-6)
 }
 
 func BenchmarkWikiVoteGraphE9(b *testing.B) {
-	edgeFileName := wikiEdgeFileName
-	nodeFileName := wikiNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-9
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperParallel(b, wikiEdgeFileName, wikiNodeFileName, 10e-9)
 }
 
 func BenchmarkWikiVoteGraphE11(b *testing.B) {
-	edgeFileName := wikiEdgeFileName
-	nodeFileName := wikiNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-11
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperParallel(b, wikiEdgeFileName, wikiNodeFileName, 10e-11)
 }
 
 func BenchmarkWikiVoteGraphSerialE6(b *testing.B) {
-	edgeFileName := wikiEdgeFileName
-	nodeFileName := wikiNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-6
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperSerial(b, wikiEdgeFileName, wikiNodeFileName, 10e-6)
 }
 
 func BenchmarkWikiVoteGraphSerialE9(b *testing.B) {
-	edgeFileName := wikiEdgeFileName
-	nodeFileName := wikiNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-9
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperSerial(b, wikiEdgeFileName, wikiNodeFileName, 10e-9)
 }
 
 func BenchmarkWikiVoteGraphSerialE11(b *testing.B) {
-	edgeFileName := wikiEdgeFileName
-	nodeFileName := wikiNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-11
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperSerial(b, wikiEdgeFileName, wikiNodeFileName, 10e-11)
 }

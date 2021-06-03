@@ -10,109 +10,25 @@ func TestStanfordVoteGraph(t *testing.T) {
 }
 
 func BenchmarkStanfordVoteGraphE6(b *testing.B) {
-	edgeFileName := stanfordEdgeFileName
-	nodeFileName := stanfordNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-6
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperParallel(b, stanfordEdgeFileName, stanfordNodeFileName, 10e-6)
 }
 
 func BenchmarkStanfordVoteGraphE9(b *testing.B) {
-	edgeFileName := stanfordEdgeFileName
-	nodeFileName := stanfordNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-9
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperParallel(b, stanfordEdgeFileName, stanfordNodeFileName, 10e-9)
 }
 
 func BenchmarkStanfordVoteGraphE11(b *testing.B) {
-	edgeFileName := stanfordEdgeFileName
-	nodeFileName := stanfordNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-11
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRank(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperParallel(b, stanfordEdgeFileName, stanfordNodeFileName, 10e-11)
 }
 
 func BenchmarkStanfordVoteGraphSerialE6(b *testing.B) {
-	edgeFileName := stanfordEdgeFileName
-	nodeFileName := stanfordNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-6
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperSerial(b, stanfordEdgeFileName, stanfordNodeFileName, 10e-6)
 }
 
 func BenchmarkStanfordVoteGraphSerialE9(b *testing.B) {
-	edgeFileName := stanfordEdgeFileName
-	nodeFileName := stanfordNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-9
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperSerial(b, stanfordEdgeFileName, stanfordNodeFileName, 10e-9)
 }
 
 func BenchmarkStanfordVoteGraphSerialE11(b *testing.B) {
-	edgeFileName := stanfordEdgeFileName
-	nodeFileName := stanfordNodeFileName
-	enableLog = false
-
-	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
-	vertexArray, edgeArray, outDegrees := makeCSR(edges, len(pages))
-
-	alpha := 0.85
-	eps := 10e-11
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		pageRankSerial(vertexArray, edgeArray, outDegrees, alpha, eps)
-	}
+	benchmarkHelperSerial(b, stanfordEdgeFileName, stanfordNodeFileName, 10e-11)
 }
