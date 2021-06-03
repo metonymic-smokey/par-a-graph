@@ -53,6 +53,7 @@ func pageRankSerial(
 			tmp := x[v]
 			sum_value := 0.0
 			for w := vertexArray[v]; w < vertexArray[v+1]; w++ {
+				// log.Println("num ", x[edgeArray[w]], " denom ", float64(outDegrees[edgeArray[w]]))
 				sum_value += x[edgeArray[w]] / float64(outDegrees[edgeArray[w]])
 			}
 			new_x[v] = (1-alpha)/float64(n) + alpha*sum_value + leak/float64(n)
@@ -92,7 +93,10 @@ func pageRank(
 	alpha float64,
 	eps float64) ([]float64, int) {
 
+	// log.Println(vertexArray, edgeArray)
+
 	n := len(vertexArray) - 1
+	// log.Println(n)
 
 	// pagerank vector
 	x := make([]float64, n)

@@ -88,7 +88,7 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 }
 
 func TestSmallGraph(t *testing.T) {
-	testHelperTopoPageRank(t, "./example", "./examplePageNum", 0.85, 0.000001)
+	testHelperTopoPageRank(t, "./../datasets/example", "../datasets/examplePageNum", 0.85, 0.000001)
 }
 
 func TestLargeGraph(t *testing.T) {
@@ -132,8 +132,8 @@ func BenchmarkLargeGraphE6(b *testing.B) {
 }
 
 func BenchmarkSmallGraphE6(b *testing.B) {
-	edgeFileName := "./example"
-	nodeFileName := "./examplePageNum"
+	edgeFileName := "./../datasets/example"
+	nodeFileName := "../datasets/examplePageNum"
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -187,8 +187,8 @@ func BenchmarkLargeGraphE9(b *testing.B) {
 }
 
 func BenchmarkSmallGraphE9(b *testing.B) {
-	edgeFileName := "./example"
-	nodeFileName := "./examplePageNum"
+	edgeFileName := "./../datasets/example"
+	nodeFileName := "../datasets/examplePageNum"
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -241,8 +241,8 @@ func BenchmarkLargeGraphE11(b *testing.B) {
 }
 
 func BenchmarkSmallGraphE11(b *testing.B) {
-	edgeFileName := "./example"
-	nodeFileName := "./examplePageNum"
+	edgeFileName := "./../datasets/example"
+	nodeFileName := "../datasets/examplePageNum"
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
