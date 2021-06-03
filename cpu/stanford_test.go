@@ -2,13 +2,16 @@ package main
 
 import "testing"
 
+const stanfordEdgeFileName = "../datasets/stanford-edges.txt"
+const stanfordNodeFileName = "../datasets/stanford-nodes.txt"
+
 func TestStanfordVoteGraph(t *testing.T) {
-	testHelperTopoPageRank(t, "./stanford-edges.txt", "./stanford-nodes.txt", 0.85, 10e-6)
+	testHelperTopoPageRank(t, stanfordEdgeFileName, stanfordNodeFileName, 0.85, 10e-6)
 }
 
 func BenchmarkStanfordVoteGraphE6(b *testing.B) {
-	edgeFileName := "./stanford-edges.txt"
-	nodeFileName := "./stanford-nodes.txt"
+	edgeFileName := stanfordEdgeFileName
+	nodeFileName := stanfordNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -25,8 +28,8 @@ func BenchmarkStanfordVoteGraphE6(b *testing.B) {
 }
 
 func BenchmarkStanfordVoteGraphE9(b *testing.B) {
-	edgeFileName := "./stanford-edges.txt"
-	nodeFileName := "./stanford-nodes.txt"
+	edgeFileName := stanfordEdgeFileName
+	nodeFileName := stanfordNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -43,8 +46,8 @@ func BenchmarkStanfordVoteGraphE9(b *testing.B) {
 }
 
 func BenchmarkStanfordVoteGraphE11(b *testing.B) {
-	edgeFileName := "./stanford-edges.txt"
-	nodeFileName := "./stanford-nodes.txt"
+	edgeFileName := stanfordEdgeFileName
+	nodeFileName := stanfordNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -61,8 +64,8 @@ func BenchmarkStanfordVoteGraphE11(b *testing.B) {
 }
 
 func BenchmarkStanfordVoteGraphSerialE6(b *testing.B) {
-	edgeFileName := "./stanford-edges.txt"
-	nodeFileName := "./stanford-nodes.txt"
+	edgeFileName := stanfordEdgeFileName
+	nodeFileName := stanfordNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -79,8 +82,8 @@ func BenchmarkStanfordVoteGraphSerialE6(b *testing.B) {
 }
 
 func BenchmarkStanfordVoteGraphSerialE9(b *testing.B) {
-	edgeFileName := "./stanford-edges.txt"
-	nodeFileName := "./stanford-nodes.txt"
+	edgeFileName := stanfordEdgeFileName
+	nodeFileName := stanfordNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -97,8 +100,8 @@ func BenchmarkStanfordVoteGraphSerialE9(b *testing.B) {
 }
 
 func BenchmarkStanfordVoteGraphSerialE11(b *testing.B) {
-	edgeFileName := "./stanford-edges.txt"
-	nodeFileName := "./stanford-nodes.txt"
+	edgeFileName := stanfordEdgeFileName
+	nodeFileName := stanfordNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)

@@ -2,13 +2,16 @@ package main
 
 import "testing"
 
+const quoraEdgeFileName = "../datasets/quora_edges.txt"
+const quoraNodeFileName = "../datasets/quora_nodes.txt"
+
 func TestQuoraGraph(t *testing.T) {
-	testHelperTopoPageRank(t, "./quora_edges.txt", "./quora_nodes.txt", 0.85, 0.000001)
+	testHelperTopoPageRank(t, quoraEdgeFileName, quoraNodeFileName, 0.85, 0.000001)
 }
 
 func BenchmarkQuoraGraphE6(b *testing.B) {
-	edgeFileName := "./quora_edges.txt"
-	nodeFileName := "./quora_nodes.txt"
+	edgeFileName := quoraEdgeFileName
+	nodeFileName := quoraNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -25,8 +28,8 @@ func BenchmarkQuoraGraphE6(b *testing.B) {
 }
 
 func BenchmarkQuoraGraphE9(b *testing.B) {
-	edgeFileName := "./quora_edges.txt"
-	nodeFileName := "./quora_nodes.txt"
+	edgeFileName := quoraEdgeFileName
+	nodeFileName := quoraNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -43,8 +46,8 @@ func BenchmarkQuoraGraphE9(b *testing.B) {
 }
 
 func BenchmarkQuoraGraphE11(b *testing.B) {
-	edgeFileName := "./quora_edges.txt"
-	nodeFileName := "./quora_nodes.txt"
+	edgeFileName := quoraEdgeFileName
+	nodeFileName := quoraNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -61,8 +64,8 @@ func BenchmarkQuoraGraphE11(b *testing.B) {
 }
 
 func BenchmarkQuoraGraphSerialE6(b *testing.B) {
-	edgeFileName := "./quora_edges.txt"
-	nodeFileName := "./quora_nodes.txt"
+	edgeFileName := quoraEdgeFileName
+	nodeFileName := quoraNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -79,8 +82,8 @@ func BenchmarkQuoraGraphSerialE6(b *testing.B) {
 }
 
 func BenchmarkQuoraGraphSerialE9(b *testing.B) {
-	edgeFileName := "./quora_edges.txt"
-	nodeFileName := "./quora_nodes.txt"
+	edgeFileName := quoraEdgeFileName
+	nodeFileName := quoraNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -97,8 +100,8 @@ func BenchmarkQuoraGraphSerialE9(b *testing.B) {
 }
 
 func BenchmarkQuoraGraphSerialE11(b *testing.B) {
-	edgeFileName := "./quora_edges.txt"
-	nodeFileName := "./quora_nodes.txt"
+	edgeFileName := quoraEdgeFileName
+	nodeFileName := quoraNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)

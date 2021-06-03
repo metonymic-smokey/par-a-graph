@@ -12,6 +12,12 @@ import (
 	"github.com/dcadenas/pagerank"
 )
 
+const smallGraphEdgeFile = "../datasets/example"
+const smallGraphNodeFile = "../datasets/examplePageNum"
+
+const largeGraphEdgeFile = "../datasets/dirLinks.txt"
+const largeGraphNodeFile = "../datasets/pageNum.txt"
+
 func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName string, alpha float64, eps float64) {
 
 	f, err := os.Open(edgeFileName)
@@ -33,7 +39,7 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 	for _, fc := range fileContents {
 		res := strings.Split(fc, ",")
 		if len(res) < 2 {
-			fmt.Println("less than 2 in dirLinks")
+			fmt.Println("less than 2 in edge file")
 			continue
 		}
 		src, _ := strconv.Atoi(res[0])
@@ -88,16 +94,16 @@ func testHelperTopoPageRank(t *testing.T, edgeFileName string, nodeFileName stri
 }
 
 func TestSmallGraph(t *testing.T) {
-	testHelperTopoPageRank(t, "./../datasets/example", "../datasets/examplePageNum", 0.85, 0.000001)
+	testHelperTopoPageRank(t, smallGraphEdgeFile, smallGraphNodeFile, 0.85, 0.000001)
 }
 
 func TestLargeGraph(t *testing.T) {
-	testHelperTopoPageRank(t, "./dirLinks.txt", "./pageNum.txt", 0.85, 0.000001)
+	testHelperTopoPageRank(t, largeGraphEdgeFile, largeGraphNodeFile, 0.85, 0.000001)
 }
 
 func BenchmarkLargeGraphSerialE6(b *testing.B) {
-	edgeFileName := "./dirLinks.txt"
-	nodeFileName := "./pageNum.txt"
+	edgeFileName := largeGraphEdgeFile
+	nodeFileName := largeGraphNodeFile
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -114,8 +120,8 @@ func BenchmarkLargeGraphSerialE6(b *testing.B) {
 }
 
 func BenchmarkLargeGraphE6(b *testing.B) {
-	edgeFileName := "./dirLinks.txt"
-	nodeFileName := "./pageNum.txt"
+	edgeFileName := largeGraphEdgeFile
+	nodeFileName := largeGraphNodeFile
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -132,8 +138,8 @@ func BenchmarkLargeGraphE6(b *testing.B) {
 }
 
 func BenchmarkSmallGraphE6(b *testing.B) {
-	edgeFileName := "./../datasets/example"
-	nodeFileName := "../datasets/examplePageNum"
+	edgeFileName := smallGraphEdgeFile
+	nodeFileName := smallGraphNodeFile
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -150,8 +156,8 @@ func BenchmarkSmallGraphE6(b *testing.B) {
 }
 
 func BenchmarkLargeGraphSerialE9(b *testing.B) {
-	edgeFileName := "./dirLinks.txt"
-	nodeFileName := "./pageNum.txt"
+	edgeFileName := largeGraphEdgeFile
+	nodeFileName := largeGraphNodeFile
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -168,8 +174,8 @@ func BenchmarkLargeGraphSerialE9(b *testing.B) {
 }
 
 func BenchmarkLargeGraphE9(b *testing.B) {
-	edgeFileName := "./dirLinks.txt"
-	nodeFileName := "./pageNum.txt"
+	edgeFileName := largeGraphEdgeFile
+	nodeFileName := largeGraphNodeFile
 
 	enableLog = false
 
@@ -187,8 +193,8 @@ func BenchmarkLargeGraphE9(b *testing.B) {
 }
 
 func BenchmarkSmallGraphE9(b *testing.B) {
-	edgeFileName := "./../datasets/example"
-	nodeFileName := "../datasets/examplePageNum"
+	edgeFileName := smallGraphEdgeFile
+	nodeFileName := smallGraphNodeFile
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -205,8 +211,8 @@ func BenchmarkSmallGraphE9(b *testing.B) {
 }
 
 func BenchmarkLargeGraphSerialE11(b *testing.B) {
-	edgeFileName := "./dirLinks.txt"
-	nodeFileName := "./pageNum.txt"
+	edgeFileName := largeGraphEdgeFile
+	nodeFileName := largeGraphNodeFile
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -223,8 +229,8 @@ func BenchmarkLargeGraphSerialE11(b *testing.B) {
 }
 
 func BenchmarkLargeGraphE11(b *testing.B) {
-	edgeFileName := "./dirLinks.txt"
-	nodeFileName := "./pageNum.txt"
+	edgeFileName := largeGraphEdgeFile
+	nodeFileName := largeGraphNodeFile
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -241,8 +247,8 @@ func BenchmarkLargeGraphE11(b *testing.B) {
 }
 
 func BenchmarkSmallGraphE11(b *testing.B) {
-	edgeFileName := "./../datasets/example"
-	nodeFileName := "../datasets/examplePageNum"
+	edgeFileName := smallGraphEdgeFile
+	nodeFileName := smallGraphNodeFile
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)

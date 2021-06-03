@@ -2,13 +2,16 @@ package main
 
 import "testing"
 
+const wikiEdgeFileName = "../datasets/wiki-vote-edges.txt"
+const wikiNodeFileName = "../datasets/wiki-vote-nodes.txt"
+
 func TestWikiVoteGraph(t *testing.T) {
-	testHelperTopoPageRank(t, "./wiki-vote-edges.txt", "./wiki-vote-nodes.txt", 0.85, 10e-6)
+	testHelperTopoPageRank(t, wikiEdgeFileName, wikiNodeFileName, 0.85, 10e-6)
 }
 
 func BenchmarkWikiVoteGraphE6(b *testing.B) {
-	edgeFileName := "./wiki-vote-edges.txt"
-	nodeFileName := "./wiki-vote-nodes.txt"
+	edgeFileName := wikiEdgeFileName
+	nodeFileName := wikiNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -25,8 +28,8 @@ func BenchmarkWikiVoteGraphE6(b *testing.B) {
 }
 
 func BenchmarkWikiVoteGraphE9(b *testing.B) {
-	edgeFileName := "./wiki-vote-edges.txt"
-	nodeFileName := "./wiki-vote-nodes.txt"
+	edgeFileName := wikiEdgeFileName
+	nodeFileName := wikiNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -43,8 +46,8 @@ func BenchmarkWikiVoteGraphE9(b *testing.B) {
 }
 
 func BenchmarkWikiVoteGraphE11(b *testing.B) {
-	edgeFileName := "./wiki-vote-edges.txt"
-	nodeFileName := "./wiki-vote-nodes.txt"
+	edgeFileName := wikiEdgeFileName
+	nodeFileName := wikiNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -61,8 +64,8 @@ func BenchmarkWikiVoteGraphE11(b *testing.B) {
 }
 
 func BenchmarkWikiVoteGraphSerialE6(b *testing.B) {
-	edgeFileName := "./wiki-vote-edges.txt"
-	nodeFileName := "./wiki-vote-nodes.txt"
+	edgeFileName := wikiEdgeFileName
+	nodeFileName := wikiNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -79,8 +82,8 @@ func BenchmarkWikiVoteGraphSerialE6(b *testing.B) {
 }
 
 func BenchmarkWikiVoteGraphSerialE9(b *testing.B) {
-	edgeFileName := "./wiki-vote-edges.txt"
-	nodeFileName := "./wiki-vote-nodes.txt"
+	edgeFileName := wikiEdgeFileName
+	nodeFileName := wikiNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
@@ -97,8 +100,8 @@ func BenchmarkWikiVoteGraphSerialE9(b *testing.B) {
 }
 
 func BenchmarkWikiVoteGraphSerialE11(b *testing.B) {
-	edgeFileName := "./wiki-vote-edges.txt"
-	nodeFileName := "./wiki-vote-nodes.txt"
+	edgeFileName := wikiEdgeFileName
+	nodeFileName := wikiNodeFileName
 	enableLog = false
 
 	edges, pages, _ := readGraph(edgeFileName, nodeFileName)
