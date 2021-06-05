@@ -53,7 +53,7 @@ Parallel: [`topoPageRank.go`](./topoPageRank.go#L89)
  - [`topoPageRank_test.go`](./topoPageRank_test.go): Test helpers and tests & benchmarks for small & large graph
  - [`wikiVote_test.go`](./wikiVote_test.go): Tests and benchmarks for Wiki Vote Dataset
  - [`stanford_test.go`](./stanford_test.go): Tests and benchmarks for Stanford Web graph
- - [`quora_test.go`](./quora_test.go): Tests and benchmarks for Quora QnA graph
+ - [`quora_test.go`](./quora_test.go): Tests and benchmarks for Quora Question pairs graph
 
 ## Datasets
 
@@ -68,4 +68,24 @@ Refer [Datasets](../datasets/) for more details.
 
 ## Results
 
-TODO
+Benchmark results as tested on a 4-core, 8-threads system. Refer the slides for information on cache characteristics of different graphs which explains the results we observed.
+
+### Large Graph - 1.58x speedup
+
+![Results on the Large Graph showing upto 1.58x speedup from serial to parallel](../images/cpu_1_large_graph.png)
+
+### Quora Question pairs Graph - 2.64x speedup
+
+![Results on the Quora Graph showing upto 2.64x speedup from serial to parallel](../images/cpu_2_quora.png)
+
+### Stanford Web Graph - 4.23x speedup
+
+![Results on the Stanford Web Graph showing upto 4.23x speedup from serial to parallel](../images/cpu_3_stanford.png)
+
+### Wiki Vote Graph - 2.02x speedup
+
+![Results on the Wiki Vote Graph showing upto 2.02x speedup from serial to parallel](../images/cpu_4_wiki.png)
+
+### Small Graph - 42x _slowdown_
+
+![Results on the Small Graph showing a huge 2.02x slowdown from serial to parallel](../images/cpu_5_small.png)
