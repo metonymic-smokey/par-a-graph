@@ -150,8 +150,8 @@ func BenchmarkLargeGraphSerialE9(b *testing.B) {
 	benchmarkHelperSerial(b, largeGraphEdgeFile, largeGraphNodeFile, 10e-9)
 }
 
-func BenchmarkSmallGraphE9(b *testing.B) {
-	benchmarkHelperParallel(b, smallGraphEdgeFile, smallGraphNodeFile, 10e-9)
+func BenchmarkLargeGraphE9(b *testing.B) {
+	benchmarkHelperParallel(b, largeGraphEdgeFile, largeGraphNodeFile, 10e-9)
 }
 
 func BenchmarkLargeGraphSerialE11(b *testing.B) {
@@ -168,10 +168,22 @@ func BenchmarkSmallGraphE6(b *testing.B) {
 	benchmarkHelperParallel(b, smallGraphEdgeFile, smallGraphNodeFile, 10e-6)
 }
 
-func BenchmarkLargeGraphE9(b *testing.B) {
-	benchmarkHelperParallel(b, largeGraphEdgeFile, largeGraphNodeFile, 10e-9)
+func BenchmarkSmallGraphE9(b *testing.B) {
+	benchmarkHelperParallel(b, smallGraphEdgeFile, smallGraphNodeFile, 10e-9)
 }
 
 func BenchmarkSmallGraphE11(b *testing.B) {
 	benchmarkHelperParallel(b, smallGraphEdgeFile, smallGraphNodeFile, 10e-11)
+}
+
+func BenchmarkSmallGraphSerialE6(b *testing.B) {
+	benchmarkHelperSerial(b, smallGraphEdgeFile, smallGraphNodeFile, 10e-6)
+}
+
+func BenchmarkSmallGraphSerialE9(b *testing.B) {
+	benchmarkHelperSerial(b, smallGraphEdgeFile, smallGraphNodeFile, 10e-9)
+}
+
+func BenchmarkSmallGraphSerialE11(b *testing.B) {
+	benchmarkHelperSerial(b, smallGraphEdgeFile, smallGraphNodeFile, 10e-11)
 }
