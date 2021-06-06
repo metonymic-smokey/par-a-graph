@@ -191,8 +191,8 @@ var memprofile = flag.String("memprofile", "", "write memory profile to `file`")
 func main() {
 	flag.Parse()
 
-	edgeFileName := "./stanford-edges.txt"
-	nodeFileName := "./stanford-nodes.txt"
+	edgeFileName := "../datasets/stanford-edges.txt"
+	nodeFileName := "../datasets/stanford-nodes.txt"
 
 	alpha := 0.85
 	eps := 10e-11
