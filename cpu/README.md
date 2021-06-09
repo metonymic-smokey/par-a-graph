@@ -1,5 +1,29 @@
 # Parallel Pagerank using goroutines
 
+Parallel implementation of Pagerank in Go benchmarked on various datasets, achieving upto 4.2x speedup (on 4 core, 8 threads system).
+
+## Implementation Details
+
+### Parallelization
+
+Various techniques were tried, with iterative improvements. More details regarding the other techniques can be found in the [report slides](../docs/report-presentation.pdf) and the commit history. We describe the final implementation here.
+
+We partition the input graph into a fixed number of blocks ([16 was chosen for our experiments](topoPageRank.go#L105)). Partitioning is based on the nodes (and not edges). Each block has the following associated with it:
+ - a local [`deltaSum`](topoPageRank.go#L122) to store the error (delta) for each partition. This will be summed later at the end of every iteration.
+ - a local [`leak`](topoPageRank.go#L111) term to store the leak from nodes with no out-neighbours. This will be summed at the end of every iteration.
+ - a [signal channel](topoPageRank.go#L125) to signal the start of an iteration. A signal on this channel makes the goroutines start computation.
+ - a goroutine that performs the computation for that particular block.
+
+Each goroutine does the following:
+ - Initialize values of the pagerank vector with $1/n$ as soon as they are launched. These are seen as yellow marks at the top of each goroutine in the visualization below.
+ - When a signal is given over the signal channel, it performs the pagerank computation. The wait group is used to synchronise all of the goroutines.
+
+Below is a visualization of the goroutines using [gotrace](https://github.com/divan/gotrace). At the center is the main goroutine and the rest are each of the goroutines for each partition. The yellow parts are CPU intensive operations - initializing pagerank vector and pagerank computation. The blue lines are channel send/receive - over the signal channels. The short breaks are between each iteration of pagerank.
+
+![](https://drive.google.com/uc?export=view&id=1iL0QNMGY4xqN-R0NqCh_rVHAZ-wc-E_J)
+
+Note: some small changes were made for the sake of visualization. A few explicit pauses had to be added to show all of the phases.
+
 ## Usage
 
 ### Testing
