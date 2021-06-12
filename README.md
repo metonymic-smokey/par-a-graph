@@ -1,4 +1,4 @@
-# `groph-parallel`
+# `par-a-graph`
 
 Parallel implementations of graph algorithms using Go. Parallelization is performed both on CPU (using goroutines) and GPU (using CUDA).
 
