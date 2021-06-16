@@ -3,8 +3,6 @@ package main
 import (
 	"math"
 	"sync"
-	// "log"
-	// "runtime"
 )
 
 func pageRankSerial(
@@ -41,9 +39,8 @@ func pageRankSerial(
 		var leak float64
 
 		for _, v := range nodes {
-			if outDegrees[v] == 0 { //dangling nodes
+			if outDegrees[v] == 0 { //dangling nodes have 0 outdegrees
 				leak += x[v]
-				// log.Println("found leak", x[v], outDegrees[v], v)
 			}
 		}
 
@@ -53,7 +50,6 @@ func pageRankSerial(
 			tmp := x[v]
 			sum_value := 0.0
 			for w := vertexArray[v]; w < vertexArray[v+1]; w++ {
-				// log.Println("num ", x[edgeArray[w]], " denom ", float64(outDegrees[edgeArray[w]]))
 				sum_value += x[edgeArray[w]] / float64(outDegrees[edgeArray[w]])
 			}
 			new_x[v] = (1-alpha)/float64(n) + alpha*sum_value + leak/float64(n)
@@ -64,20 +60,18 @@ func pageRankSerial(
 		for i, new_val := range new_x {
 			x[i] = new_val
 		}
-		// log.Println(deltaSum)
 
 		if deltaSum < eps {
 			break
 		}
 	}
 
-	// log.Println("serial iters: ", iters)
-
 	norm := 0.0
 	for _, v := range x {
 		norm += v
 	}
 
+	//first degree normalization
 	for i := range x {
 		x[i] /= norm
 	}
@@ -93,10 +87,7 @@ func pageRank(
 	alpha float64,
 	eps float64) ([]float64, int) {
 
-	// log.Println(vertexArray, edgeArray)
-
 	n := len(vertexArray) - 1
-	// log.Println(n)
 
 	// pagerank vector
 	x := make([]float64, n)
@@ -138,7 +129,6 @@ func pageRank(
 		} else {
 			sliceEnd = blockSize * (i + 1)
 		}
-		// log.Println("allocating block ", sliceStart, " ", sliceEnd)
 
 		go func(parIndex int, sliceStart int, sliceEnd int) {
 			// initialize pageranks
@@ -147,18 +137,13 @@ func pageRank(
 			}
 			wg.Done()
 
-			// runtime.LockOSThread()
 			for {
 				<-signallers[parIndex]
-				// _, ok := <-signallers[parIndex]
-				// if !ok {
-				// 	// runtime.UnlockOSThread()
-				// 	return
-				// }
 				for v := sliceStart; v < sliceEnd; v++ {
 					sumValue := 0.0
 					for w := vertexArray[v]; w < vertexArray[v+1]; w++ {
 						// could improve cache locality here using GAS, PCPM
+						// lots of random access happening here
 						sumValue += x[edgeArray[w]] / float64(outDegrees[edgeArray[w]])
 					}
 					new_x[v] = alphaTerm + alpha*sumValue + leak/numNodes
@@ -177,19 +162,19 @@ func pageRank(
 
 	leak = 0.0
 	for v := 0; v < n; v++ {
-		if outDegrees[v] == 0 { //dangling nodes
+		if outDegrees[v] == 0 { //dangling nodes have 0 outdegree
 			leak += x[v]
 		}
 	}
 	leak *= alpha
 
+	//variable for number of iterations
 	iters := 0
 
 	for {
 		iters++
 
 		deltaSum := 0.0
-		// log.Println("leak", leak)
 
 		wg.Add(numParallel)
 		for i := 0; i < numParallel; i++ {
@@ -211,24 +196,18 @@ func pageRank(
 		temp := x
 		x = new_x
 		new_x = temp
-		// log.Println(deltaSum)
 
 		if deltaSum < eps {
 			break
 		}
 	}
 
-	// log.Println("parallel iters: ", iters)
-
-	// for i := 0; i < numParallel; i++ {
-	// 	close(signallers[i])
-	// }
-
 	norm := 0.0
 	for _, v := range x {
 		norm += v
 	}
 
+	//first degree normalization
 	for i := range x {
 		x[i] /= norm
 	}

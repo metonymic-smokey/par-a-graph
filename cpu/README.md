@@ -8,10 +8,10 @@ Parallel implementation of Pagerank in Go benchmarked on various datasets, achie
 
 Various techniques were tried, with iterative improvements. More details regarding the other techniques can be found in the [report slides](../docs/report-presentation.pdf) and the commit history. We describe the final implementation here.
 
-We partition the input graph into a fixed number of blocks ([16 was chosen for our experiments](topoPageRank.go#L105)). Partitioning is based on the nodes (and not edges). Each block has the following associated with it:
- - a local [`deltaSum`](topoPageRank.go#L122) to store the error (delta) for each partition. This will be summed later at the end of every iteration.
- - a local [`leak`](topoPageRank.go#L111) term to store the leak from nodes with no out-neighbours. This will be summed at the end of every iteration.
- - a [signal channel](topoPageRank.go#L125) to signal the start of an iteration. A signal on this channel makes the goroutines start computation.
+We partition the input graph into a fixed number of blocks ([16 was chosen for our experiments](topoPageRank.go#L96)). Partitioning is based on the nodes (and not edges). Each block has the following associated with it:
+ - a local [`deltaSum`](topoPageRank.go#L113) to store the error (delta) for each partition. This will be summed later at the end of every iteration.
+ - a local [`leak`](topoPageRank.go#L102) term to store the leak from nodes with no out-neighbours. This will be summed at the end of every iteration.
+ - a [signal channel](topoPageRank.go#L116) to signal the start of an iteration. A signal on this channel makes the goroutines start computation.
  - a goroutine that performs the computation for that particular block.
 
 Each goroutine does the following:
@@ -60,9 +60,9 @@ Refer [Datasets](#datasets) for a list of available datasets.
 
 ### Implementation
 
-Serial: [`topoPageRank.go`](./topoPageRank.go#L10)
+Serial: [`topoPageRank.go`](./topoPageRank.go#L8)
 
-Parallel: [`topoPageRank.go`](./topoPageRank.go#L89)
+Parallel: [`topoPageRank.go`](./topoPageRank.go#L83)
 
 ### Utilities
 
