@@ -30,5 +30,4 @@ TODO: rough implementation can be found in the `cuda_pr` branch.
  - [`docs`](./docs): documents related to the project - presentation slides, etc.
 
 ## License
-
-TODO
+[Aapche 2.0 license](LICENSE)
