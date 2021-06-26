@@ -1,0 +1,9 @@
+alr21*
+*.txt
+output
+trace.out
+cpu.prof
+topo.test
+topo
+*.log
+*.so
